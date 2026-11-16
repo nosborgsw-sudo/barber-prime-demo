@@ -1,0 +1,177 @@
+{
+  "versao": 1,
+  "escopo": "operacional",
+  "htmlAutonomo": "app-autonomo.html",
+  "servidor": {
+    "comando": "npm start",
+    "porta": 3400,
+    "ambiente": {
+      "PORT": "3400",
+      "ADMIN_SENHA": "admin123"
+    }
+  },
+  "fluxos": [
+    {
+      "id": "F1",
+      "requisito": "R1",
+      "titulo": "Suíte automatizada: autenticação, disponibilidade, agendamento, segurança, concorrência e persistência",
+      "tipo": "comando",
+      "comando": "npm test",
+      "codigo": 0,
+      "saidaContem": ["fail 0"]
+    },
+    {
+      "id": "F2",
+      "requisito": "R1",
+      "titulo": "Smoke real em processo separado, com reinício e persistência",
+      "tipo": "comando",
+      "comando": "node tests/smoke.js",
+      "codigo": 0,
+      "saidaContem": ["SMOKE OK"]
+    },
+    {
+      "id": "F3",
+      "requisito": "R1",
+      "titulo": "API real: login admin, reset, disponibilidade, reserva, reinício, conflito, cancelamento e liberação da vaga",
+      "tipo": "http",
+      "passos": [
+        {
+          "metodo": "POST",
+          "caminho": "/api/login",
+          "corpo": { "login": "admin", "senha": "admin123" },
+          "status": 200
+        },
+        {
+          "metodo": "POST",
+          "caminho": "/api/admin/reset-demo",
+          "corpo": {},
+          "status": 200
+        },
+        {
+          "metodo": "GET",
+          "caminho": "/api/disponibilidade?servicoId=1&data=2027-11-09",
+          "status": 200,
+          "contem": ["15:30"]
+        },
+        {
+          "metodo": "POST",
+          "caminho": "/api/agendamentos",
+          "corpo": { "clienteId": 6, "servicoId": 1, "barbeiroId": 1, "data": "2027-11-09", "hora": "15:30" },
+          "status": 201
+        },
+        {
+          "metodo": "GET",
+          "caminho": "/api/agendamentos?barbeiroId=1&data=2027-11-09",
+          "status": 200,
+          "contem": ["15:30"]
+        },
+        { "reiniciar": true },
+        {
+          "metodo": "GET",
+          "caminho": "/api/agendamentos?barbeiroId=1&data=2027-11-09",
+          "status": 200,
+          "contem": ["15:30"]
+        },
+        {
+          "metodo": "POST",
+          "caminho": "/api/agendamentos",
+          "corpo": { "clienteId": 7, "servicoId": 1, "barbeiroId": 1, "data": "2027-11-09", "hora": "15:30" },
+          "status": 409
+        },
+        {
+          "metodo": "PATCH",
+          "caminho": "/api/agendamentos/3/cancelar",
+          "corpo": {},
+          "status": 200
+        },
+        {
+          "metodo": "GET",
+          "caminho": "/api/agendamentos?barbeiroId=1&data=2027-11-09&escopo=todos",
+          "status": 200,
+          "contem": ["cancelado"]
+        },
+        {
+          "metodo": "GET",
+          "caminho": "/api/disponibilidade?servicoId=1&data=2027-11-09",
+          "status": 200,
+          "contem": ["15:30"]
+        }
+      ]
+    },
+    {
+      "id": "F4",
+      "requisito": "R1",
+      "titulo": "Tela servida: login da equipe e painel administrativo com KPIs",
+      "tipo": "tela",
+      "caminho": "/",
+      "passos": [
+        { "clicar": "#nav-entrar" },
+        { "clicar": "#btn-equipe" },
+        { "preencher": "#login-staff-login", "valor": "admin" },
+        { "preencher": "#login-staff-senha", "valor": "admin123" },
+        { "clicar": "#btn-entrar-staff" },
+        { "clicar": "#nav-admin" },
+        { "esperarTexto": "Receita estimada" }
+      ]
+    },
+    {
+      "id": "F5",
+      "requisito": "R1",
+      "titulo": "HTML autônomo em 375 px e sem rede: cadastro, agendamento, cancelamento e histórico",
+      "tipo": "tela",
+      "caminho": "app-autonomo.html",
+      "alvo": "autonomo",
+      "largura": 375,
+      "passos": [
+        { "clicar": "#nav-entrar" },
+        { "preencher": "#cadastro-nome", "valor": "Homologa" },
+        { "preencher": "#cadastro-sobrenome", "valor": "Tela" },
+        { "preencher": "#cadastro-telefone", "valor": "11999990001" },
+        { "preencher": "#cadastro-pin", "valor": "1234" },
+        { "clicar": "#btn-cadastrar" },
+        { "clicar": "#nav-agendar" },
+        { "clicar": "#servico-1" },
+        { "clicar": "#btn-proximo-horario" },
+        { "clicar": "#btn-confirmar" },
+        { "esperarTexto": "Agendamento confirmado" },
+        { "clicar": "#nav-meus" },
+        { "esperarTexto": "Agendado" },
+        { "clicar": "#btn-cancelar-1" },
+        { "clicar": "#btn-confirmar-cancelamento-1" },
+        { "clicar": "#filtro-historico" },
+        { "esperarTexto": "Cancelado" }
+      ]
+    },
+    {
+      "id": "F6",
+      "requisito": "R1",
+      "titulo": "Concorrência: 100 reservas simultâneas, exatamente uma confirmada",
+      "tipo": "teste",
+      "nome": "concorrência: 100 reservas simultâneas resultam em exatamente 1 confirmada"
+    },
+    {
+      "id": "F7",
+      "requisito": "R1",
+      "titulo": "HTML autônomo único, offline e com demonstração marcada",
+      "tipo": "arquivo",
+      "caminho": "app-autonomo.html",
+      "contem": ["DEMONSTRAÇÃO", "barberprime.demo.v1", "localStorage"]
+    },
+    {
+      "id": "F8",
+      "requisito": "R1",
+      "titulo": "Relatório de validação com matriz requisito/evidência",
+      "tipo": "arquivo",
+      "caminho": "docs/RELATORIO-VALIDACAO.md",
+      "contem": ["Matriz requisito", "Segunda validação"]
+    },
+    {
+      "id": "F9",
+      "requisito": "R1",
+      "titulo": "Integração de OTP por SMS/WhatsApp (simulada, depende de credencial externa)",
+      "tipo": "integracao",
+      "situacao": "simulada",
+      "dependencia": "credencial de SMS/WhatsApp Business API (Meta ou Twilio) para envio de código OTP"
+    }
+  ]
+}

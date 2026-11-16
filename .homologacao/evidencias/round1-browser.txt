@@ -1,0 +1,32 @@
+
+=== APP AUTONOMO (375px, offline) ===
+PASS autonomo: banner DEMONSTRAÇÃO visível
+PASS autonomo: sem erros de console na abertura
+PASS autonomo: formulário de cadastro visível
+PASS autonomo: cadastro aceito
+PASS autonomo: confirmação de agendamento
+PASS autonomo: agendamento na lista
+PASS autonomo: cancelamento refletido
+PASS autonomo: dados em localStorage
+PASS autonomo: estado persiste após recarregar
+PASS autonomo: repetição do cadastro entra na conta existente
+PASS autonomo: segundo agendamento em nova vaga
+
+=== APP SERVIDO (browser real) ===
+PASS servido: home carregou
+PASS servido: sem erros de console na abertura
+PASS servido: painel admin abre
+PASS servido: KPI de receita preenchido — R$ 0,00
+PASS servido: agendamento confirmado na tela
+PASS servido: agendamento listado
+PASS servido: modal de cancelamento abre
+PASS servido: cancelamento refletido
+PASS servido: painel do barbeiro abre
+PASS servido: agenda da semana carrega
+PASS servido: botão concluir disponível — btn-concluir-3
+PASS servido: atendimento concluído
+PASS servido: home em 375px
+PASS servido: sem overflow horizontal em 375px — diferenca=0
+
+RESUMO: 25/25 verificacoes OK
+BROWSER_CHECK_OK

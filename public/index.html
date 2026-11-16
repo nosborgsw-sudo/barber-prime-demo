@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b0b0d">
+  <meta name="description" content="Barber Prime — barbearia premium com quatro barbeiros. Agende corte, barba e cuidados em poucos toques.">
+  <title>Barber Prime · Barbearia</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+
+  <div id="toast-region" class="toast-region" role="status" aria-live="polite" aria-atomic="false"></div>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="#/inicio" aria-label="Barber Prime — ir para o início">
+        <svg class="brand-mark" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+          <circle cx="24" cy="24" r="21" fill="none" stroke="currentColor" stroke-width="1.4"/>
+          <circle cx="16" cy="33" r="4.6" fill="none" stroke="currentColor" stroke-width="1.6"/>
+          <circle cx="32" cy="33" r="4.6" fill="none" stroke="currentColor" stroke-width="1.6"/>
+          <path d="M19.4 29.8 31.5 12M28.6 29.8 16.5 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+        <span class="brand-text">
+          <span class="brand-name">BARBER PRIME</span>
+          <span class="brand-tag">BARBEARIA</span>
+        </span>
+      </a>
+
+      <nav id="nav-principal" aria-label="Navegação principal">
+        <button type="button" class="nav-btn" id="nav-inicio" data-view="inicio" aria-label="Início">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span>Início</span>
+        </button>
+        <button type="button" class="nav-btn" id="nav-agendar" data-view="agendar" aria-label="Agendar">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3.5" y="5" width="17" height="15.5" rx="2.2" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M3.5 9.5h17M8 3v4M16 3v4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <span>Agendar</span>
+        </button>
+        <button type="button" class="nav-btn" id="nav-meus" data-view="meus" aria-label="Meus agendamentos">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 4.5h10M7 9h10M7 13.5h6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><rect x="4" y="3" width="16" height="18" rx="2.2" fill="none" stroke="currentColor" stroke-width="1.7"/></svg>
+          <span>Meus</span>
+        </button>
+        <button type="button" class="nav-btn" id="nav-entrar" data-view="entrar" aria-label="Entrar">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="8" r="3.6" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M4.8 20c.6-3.6 3.5-5.6 7.2-5.6s6.6 2 7.2 5.6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <span>Entrar</span>
+        </button>
+        <button type="button" class="nav-btn" id="nav-barbeiro" data-view="barbeiro" aria-label="Painel do barbeiro">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="7" cy="17.5" r="3.2" fill="none" stroke="currentColor" stroke-width="1.7"/><circle cx="17" cy="17.5" r="3.2" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M9.3 15.2 17.5 4M14.7 15.2 6.5 4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <span>Equipe</span>
+        </button>
+        <button type="button" class="nav-btn" id="nav-admin" data-view="admin" aria-label="Painel administrativo">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3.5 19 6v5.5c0 4.2-2.9 7.3-7 9-4.1-1.7-7-4.8-7-9V6z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="m9 11.6 2.1 2.1L15.3 9.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span>Admin</span>
+        </button>
+      </nav>
+
+      <div class="header-user">
+        <span id="usuario-atual" class="usuario-atual" aria-live="polite">Visitante</span>
+        <button type="button" id="btn-sair" class="btn btn-mini btn-ghost" hidden>Sair</button>
+      </div>
+    </div>
+  </header>
+
+  <main id="conteudo" class="main">
+    <div class="page-head">
+      <span class="page-kicker">Barber Prime</span>
+      <h1 id="titulo-pagina">Início</h1>
+    </div>
+
+    <!-- ============================ INÍCIO ============================ -->
+    <section id="view-inicio" class="view" data-view="inicio" hidden>
+      <div class="hero">
+        <div class="hero-content">
+          <p class="eyebrow">Tradição, precisão e cuidado</p>
+          <p class="hero-brand" aria-hidden="true">BARBER<span>PRIME</span></p>
+          <p class="hero-lead">Cortes clássicos, barba impecável e um atendimento feito para você. Escolha o serviço, o barbeiro e o melhor horário — em poucos toques.</p>
+          <div class="hero-actions">
+            <button type="button" id="btn-agendar" class="btn btn-gold btn-lg">Agendar horário</button>
+            <button type="button" class="btn btn-ghost btn-lg" data-goto="meus">Meus agendamentos</button>
+          </div>
+          <ul class="hero-points">
+            <li><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m5 12.5 4.2 4.2L19 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Quatro barbeiros</li>
+            <li><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m5 12.5 4.2 4.2L19 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Horários reais</li>
+            <li><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m5 12.5 4.2 4.2L19 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Confirmação imediata</li>
+          </ul>
+        </div>
+        <div class="hero-art" aria-hidden="true">
+          <svg viewBox="0 0 340 340" focusable="false">
+            <circle cx="170" cy="170" r="158" fill="none" stroke="currentColor" stroke-opacity=".34" stroke-width="1"/>
+            <circle cx="170" cy="170" r="124" fill="none" stroke="currentColor" stroke-opacity=".2" stroke-width="1" stroke-dasharray="2 10"/>
+            <circle cx="170" cy="170" r="96" fill="none" stroke="currentColor" stroke-opacity=".14" stroke-width="1"/>
+            <text x="170" y="190" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="82" letter-spacing="4" fill="currentColor" fill-opacity=".88">BP</text>
+            <path d="M112 216h116M130 232h80" stroke="currentColor" stroke-opacity=".5" stroke-width="1.4" stroke-linecap="round"/>
+            <circle cx="170" cy="170" r="150" fill="none" stroke="currentColor" stroke-opacity=".1" stroke-width="18"/>
+          </svg>
+        </div>
+      </div>
+
+      <section class="section" aria-labelledby="home-barbeiros-titulo">
+        <div class="section-head">
+          <div>
+            <h2 id="home-barbeiros-titulo">Nossos barbeiros</h2>
+            <p class="section-sub">Cada um com seu estilo, todos com o mesmo cuidado.</p>
+          </div>
+        </div>
+        <div id="home-barbeiros" class="barber-grid" aria-live="polite">
+          <p class="state">Carregando barbeiros…</p>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="home-servicos-titulo">
+        <div class="section-head">
+          <div>
+            <h2 id="home-servicos-titulo">Serviços</h2>
+            <p class="section-sub">Preço justo, tempo bem aproveitado.</p>
+          </div>
+          <button type="button" class="btn btn-ghost btn-mini" data-goto="agendar">Escolher serviço</button>
+        </div>
+        <div id="home-servicos" class="service-grid" aria-live="polite">
+          <p class="state">Carregando serviços…</p>
+        </div>
+      </section>
+
+      <section class="section info-section" aria-label="Funcionamento, contato e feriados">
+        <article class="info-card">
+          <h2>Funcionamento</h2>
+          <div id="home-horarios" class="info-body" aria-live="polite"><p class="state">Carregando…</p></div>
+        </article>
+        <article class="info-card">
+          <h2>Contato</h2>
+          <div id="home-contato" class="info-body" aria-live="polite"><p class="state">Carregando…</p></div>
+        </article>
+        <article class="info-card">
+          <h2>Feriados</h2>
+          <div id="home-feriados" class="info-body" aria-live="polite"><p class="state">Carregando…</p></div>
+        </article>
+      </section>
+    </section>
+
+    <!-- ============================ AGENDAR ============================ -->
+    <section id="view-agendar" class="view" data-view="agendar" hidden>
+      <!--
+        IDs dinâmicos exigidos pelo contrato, gerados a partir de /api/servicos e /api/barbeiros:
+        #servico-1 #servico-2 #servico-3 #servico-4 #servico-5
+        #barbeiro-1 #barbeiro-2 #barbeiro-3 #barbeiro-4 #barbeiro-qualquer
+      -->
+      <div class="panel booking-panel">
+        <ol class="steps" aria-label="Etapas do agendamento">
+          <li>Serviço</li>
+          <li>Barbeiro</li>
+          <li>Data</li>
+          <li>Horário</li>
+        </ol>
+
+        <fieldset class="booking-step">
+          <legend><span class="step-num" aria-hidden="true">1</span> Escolha o serviço</legend>
+          <div id="lista-servicos" class="option-grid" aria-live="polite">
+            <p class="state">Carregando serviços…</p>
+          </div>
+          <p id="resumo-servico" class="resumo">Nenhum serviço selecionado.</p>
+        </fieldset>
+
+        <fieldset class="booking-step">
+          <legend><span class="step-num" aria-hidden="true">2</span> Escolha o barbeiro</legend>
+          <div id="lista-barbeiros" class="option-grid" aria-live="polite">
+            <button type="button" class="option" id="barbeiro-qualquer" aria-pressed="false">
+              <span class="option-title">Qualquer barbeiro</span>
+              <span class="option-meta">Primeiro horário livre</span>
+            </button>
+          </div>
+          <p id="resumo-barbeiro" class="resumo">Qualquer barbeiro — primeiro horário livre.</p>
+        </fieldset>
+
+        <fieldset class="booking-step">
+          <legend><span class="step-num" aria-hidden="true">3</span> Escolha a data</legend>
+          <div class="date-toolbar">
+            <p id="data-selecionada" class="date-selected">Nenhuma data selecionada</p>
+            <button type="button" id="btn-proxima-data" class="btn btn-mini btn-ghost">Próxima data com vaga</button>
+          </div>
+          <div id="calendario" class="calendar" role="group" aria-label="Datas com vaga">
+            <p class="state">Escolha um serviço para ver as datas com vaga.</p>
+          </div>
+        </fieldset>
+
+        <fieldset class="booking-step">
+          <legend><span class="step-num" aria-hidden="true">4</span> Escolha o horário</legend>
+          <div id="horarios" class="slots" role="group" aria-label="Horários disponíveis">
+            <p class="state">Escolha uma data para ver os horários.</p>
+          </div>
+          <div class="slot-toolbar">
+            <button type="button" id="btn-proximo-horario" class="btn btn-mini btn-ghost">Primeiro horário livre</button>
+            <p id="resumo-horario" class="resumo">Nenhum horário selecionado.</p>
+          </div>
+        </fieldset>
+
+        <div class="booking-footer">
+          <div id="erro-booking" class="msg msg-erro" role="alert" hidden></div>
+          <div id="confirmacao" class="msg msg-ok" role="status" hidden>
+            <strong>Agendamento confirmado</strong>
+            <div id="confirmacao-detalhe" class="confirmacao-detalhe"></div>
+            <button type="button" class="link-btn" data-goto="meus">Ver meus agendamentos</button>
+          </div>
+          <button type="button" id="btn-confirmar" class="btn btn-gold btn-lg btn-block-mobile">Confirmar agendamento</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================ MEUS AGENDAMENTOS ============================ -->
+    <section id="view-meus" class="view" data-view="meus" hidden>
+      <!-- IDs dinâmicos por card: #agendamento-<n>, #btn-reagendar-<n>, #btn-cancelar-<n> -->
+      <div class="panel">
+        <div class="toolbar toolbar-wrap">
+          <div class="tabs" role="tablist" aria-label="Filtrar agendamentos">
+            <button type="button" class="tab" id="filtro-proximos" role="tab" aria-selected="true" aria-controls="meus-agendamentos">Próximos</button>
+            <button type="button" class="tab" id="filtro-historico" role="tab" aria-selected="false" aria-controls="meus-agendamentos">Histórico</button>
+          </div>
+          <button type="button" class="btn btn-gold btn-mini" data-goto="agendar">Novo agendamento</button>
+        </div>
+        <div id="meus-agendamentos" class="cards" role="tabpanel" tabindex="0" aria-live="polite">
+          <p class="state">Carregando agendamentos…</p>
+        </div>
+      </div>
+
+      <div class="panel reschedule-panel" id="reagendar-panel" hidden>
+        <div class="section-head">
+          <div>
+            <h2>Reagendar</h2>
+            <p id="reagendar-titulo" class="section-sub">Escolha a nova data e o novo horário.</p>
+          </div>
+          <button type="button" class="btn btn-mini btn-ghost" id="btn-fechar-reagendar">Fechar</button>
+        </div>
+        <div class="form-grid">
+          <div>
+            <label for="reagendar-data">Nova data</label>
+            <input id="reagendar-data" type="date" autocomplete="off">
+          </div>
+          <div>
+            <label for="reagendar-hora">Novo horário</label>
+            <select id="reagendar-hora">
+              <option value="">Selecione um horário</option>
+            </select>
+          </div>
+        </div>
+        <div id="reagendar-erro" class="msg msg-erro" role="alert" hidden></div>
+        <div class="form-actions">
+          <button type="button" id="btn-salvar-reagendamento" class="btn btn-gold">Salvar reagendamento</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================ ENTRAR ============================ -->
+    <section id="view-entrar" class="view" data-view="entrar" hidden>
+      <div id="entrar-aviso" class="msg msg-info" role="status" hidden></div>
+
+      <div class="auth-grid">
+        <article class="panel">
+          <h2>Entrar</h2>
+          <p class="section-sub">Use seu telefone e PIN para acessar seus agendamentos.</p>
+          <form id="form-login-cliente" novalidate>
+            <label for="login-telefone">Telefone</label>
+            <input id="login-telefone" name="telefone" type="tel" inputmode="tel" autocomplete="tel" placeholder="(11) 98765-4321" maxlength="16">
+            <label for="login-pin">PIN</label>
+            <input id="login-pin" name="pin" type="password" inputmode="numeric" autocomplete="current-password" placeholder="4 a 6 dígitos" maxlength="6" pattern="\d*">
+            <div id="login-erro" class="msg msg-erro" role="alert" hidden></div>
+            <div class="form-actions">
+              <button type="submit" id="btn-entrar-cliente" class="btn btn-gold">Entrar</button>
+            </div>
+          </form>
+        </article>
+
+        <article class="panel">
+          <h2>Criar conta</h2>
+          <p class="section-sub">É rápido: seus dados ficam protegidos e você agenda em segundos.</p>
+          <form id="form-cadastro" novalidate>
+            <div class="form-grid">
+              <div>
+                <label for="cadastro-nome">Nome</label>
+                <input id="cadastro-nome" name="nome" type="text" autocomplete="given-name" maxlength="60" placeholder="Seu nome">
+              </div>
+              <div>
+                <label for="cadastro-sobrenome">Sobrenome</label>
+                <input id="cadastro-sobrenome" name="sobrenome" type="text" autocomplete="family-name" maxlength="60" placeholder="Seu sobrenome">
+              </div>
+            </div>
+            <label for="cadastro-telefone">Telefone com DDD</label>
+            <input id="cadastro-telefone" name="telefone" type="tel" inputmode="tel" autocomplete="tel" placeholder="(11) 98765-4321" maxlength="16">
+            <label for="cadastro-pin">Crie um PIN</label>
+            <input id="cadastro-pin" name="pin" type="password" inputmode="numeric" autocomplete="new-password" placeholder="4 a 6 dígitos" maxlength="6" pattern="\d*">
+            <p class="field-hint">O PIN é a sua senha de acesso. Guarde com cuidado.</p>
+            <div id="cadastro-erro" class="msg msg-erro" role="alert" hidden></div>
+            <div class="form-actions">
+              <button type="submit" id="btn-cadastrar" class="btn btn-gold">Criar conta</button>
+            </div>
+          </form>
+        </article>
+
+        <article class="panel team-card">
+          <h2>Acesso da equipe</h2>
+          <p class="section-sub">Barbeiros e administradores entram com login e senha da equipe.</p>
+          <button type="button" class="btn btn-ghost" id="btn-equipe" data-goto="barbeiro">Entrar como equipe</button>
+        </article>
+      </div>
+    </section>
+
+    <!-- ============================ PAINEL BARBEIRO ============================ -->
+    <section id="view-barbeiro" class="view" data-view="barbeiro" hidden>
+      <div id="painel-barbeiro" hidden>
+        <div class="panel">
+          <div class="section-head">
+            <div>
+              <h2>Minha agenda</h2>
+              <p class="section-sub">Somente os seus atendimentos aparecem aqui.</p>
+            </div>
+            <button type="button" class="btn btn-gold btn-mini" id="btn-bloquear">Novo bloqueio</button>
+          </div>
+
+          <h3 class="subheading">Hoje</h3>
+          <div id="agenda-hoje" class="agenda-list-wrap" aria-live="polite">
+            <p class="state">Carregando agenda de hoje…</p>
+          </div>
+
+          <h3 class="subheading">Semana</h3>
+          <div id="agenda-semana" class="agenda-list-wrap" aria-live="polite">
+            <p class="state">Carregando agenda da semana…</p>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h2>Bloqueios de horário</h2>
+          <p class="section-sub">Bloqueie um intervalo para compromissos pessoais ou pausa.</p>
+          <form id="form-bloqueio" novalidate hidden>
+            <div class="form-grid">
+              <div>
+                <label for="bloqueio-data">Data</label>
+                <input id="bloqueio-data" type="date" autocomplete="off">
+              </div>
+              <div>
+                <label for="bloqueio-motivo">Motivo</label>
+                <input id="bloqueio-motivo" type="text" maxlength="120" placeholder="Ex.: almoço, compromisso">
+              </div>
+              <div>
+                <label for="bloqueio-inicio">Início</label>
+                <input id="bloqueio-inicio" type="time" autocomplete="off">
+              </div>
+              <div>
+                <label for="bloqueio-fim">Fim</label>
+                <input id="bloqueio-fim" type="time" autocomplete="off">
+              </div>
+            </div>
+            <div id="bloqueio-erro" class="msg msg-erro" role="alert" hidden></div>
+            <div class="form-actions">
+              <button type="submit" id="btn-salvar-bloqueio" class="btn btn-gold">Salvar bloqueio</button>
+            </div>
+          </form>
+          <div id="lista-bloqueios" class="agenda-list-wrap" aria-live="polite">
+            <p class="state">Carregando bloqueios…</p>
+          </div>
+        </div>
+      </div>
+
+      <div id="barbeiro-restrito" hidden>
+        <div class="panel">
+          <h2>Área da equipe</h2>
+          <p id="barbeiro-restrito-msg" class="msg msg-aviso">Entre com uma conta de barbeiro para acessar esta agenda.</p>
+          <p class="section-sub">O acesso é exclusivo para barbeiros cadastrados. Clientes e administradores devem usar as áreas correspondentes.</p>
+          <form id="form-staff" novalidate>
+            <label for="login-staff-login">Login da equipe</label>
+            <input id="login-staff-login" name="login" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="Ex.: barbeiro1">
+            <label for="login-staff-senha">Senha</label>
+            <input id="login-staff-senha" name="senha" type="password" autocomplete="current-password" placeholder="Sua senha">
+            <div id="login-staff-erro" class="msg msg-erro" role="alert" hidden></div>
+            <div class="form-actions">
+              <button type="submit" id="btn-entrar-staff" class="btn btn-gold">Entrar na equipe</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================ PAINEL ADMIN ============================ -->
+    <section id="view-admin" class="view" data-view="admin" hidden>
+      <div id="painel-admin" hidden>
+        <!-- IDs dinâmicos: #btn-concluir-<n> e #btn-faltou-<n> aparecem na agenda do barbeiro -->
+        <div id="admin-erro" class="msg msg-erro" role="alert" hidden></div>
+
+        <div class="kpis" aria-label="Indicadores do dia">
+          <article class="kpi">
+            <span class="kpi-label">Agendamentos hoje</span>
+            <strong id="kpi-dia">—</strong>
+          </article>
+          <article class="kpi">
+            <span class="kpi-label">Concluídos</span>
+            <strong id="kpi-concluidos">—</strong>
+          </article>
+          <article class="kpi">
+            <span class="kpi-label">Cancelados</span>
+            <strong id="kpi-cancelados">—</strong>
+          </article>
+          <article class="kpi">
+            <span class="kpi-label">Clientes</span>
+            <strong id="kpi-clientes">—</strong>
+          </article>
+          <article class="kpi kpi-gold">
+            <span class="kpi-label">Receita estimada</span>
+            <strong id="kpi-receita">—</strong>
+          </article>
+        </div>
+
+        <section class="panel" aria-labelledby="admin-agendas-titulo">
+          <div class="section-head">
+            <div>
+              <h2 id="admin-agendas-titulo">Agendas de hoje</h2>
+              <p class="section-sub">Uma coluna por barbeiro.</p>
+            </div>
+          </div>
+          <div id="admin-agendas" class="admin-agendas" aria-live="polite">
+            <p class="state">Carregando agendas…</p>
+          </div>
+        </section>
+
+        <div class="admin-grid">
+          <section class="panel" aria-labelledby="admin-barbeiros-titulo">
+            <h2 id="admin-barbeiros-titulo">Barbeiros</h2>
+            <div id="admin-barbeiros" aria-live="polite"><p class="state">Carregando barbeiros…</p></div>
+          </section>
+          <section class="panel" aria-labelledby="admin-servicos-titulo">
+            <h2 id="admin-servicos-titulo">Serviços</h2>
+            <div id="admin-servicos" aria-live="polite"><p class="state">Carregando serviços…</p></div>
+          </section>
+          <section class="panel" aria-labelledby="admin-clientes-titulo">
+            <h2 id="admin-clientes-titulo">Clientes</h2>
+            <div id="admin-clientes" aria-live="polite"><p class="state">Carregando clientes…</p></div>
+          </section>
+        </div>
+
+        <section class="panel" aria-labelledby="admin-manual-titulo">
+          <div class="section-head">
+            <div>
+              <h2 id="admin-manual-titulo">Agendamento manual</h2>
+              <p class="section-sub">Reserve em nome de um cliente já cadastrado.</p>
+            </div>
+            <button type="button" class="btn btn-gold btn-mini" id="btn-novo-agendamento">Novo agendamento</button>
+          </div>
+          <form id="form-manual" novalidate hidden>
+            <div class="form-grid">
+              <div>
+                <label for="manual-cliente">Cliente</label>
+                <select id="manual-cliente">
+                  <option value="">Selecione o cliente</option>
+                </select>
+              </div>
+              <div>
+                <label for="manual-servico">Serviço</label>
+                <select id="manual-servico">
+                  <option value="">Selecione o serviço</option>
+                </select>
+              </div>
+              <div>
+                <label for="manual-barbeiro">Barbeiro</label>
+                <select id="manual-barbeiro">
+                  <option value="">Qualquer barbeiro</option>
+                </select>
+              </div>
+              <div>
+                <label for="manual-data">Data</label>
+                <input id="manual-data" type="date" autocomplete="off">
+              </div>
+              <div>
+                <label for="manual-hora">Horário</label>
+                <select id="manual-hora">
+                  <option value="">Escolha serviço e data</option>
+                </select>
+              </div>
+            </div>
+            <div id="manual-erro" class="msg msg-erro" role="alert" hidden></div>
+            <div class="form-actions">
+              <button type="submit" id="btn-manual-salvar" class="btn btn-gold">Salvar agendamento</button>
+            </div>
+          </form>
+        </section>
+
+        <section class="panel" aria-labelledby="admin-feriados-titulo">
+          <h2 id="admin-feriados-titulo">Feriados</h2>
+          <p class="section-sub">A barbearia não abre nos feriados cadastrados.</p>
+          <div id="admin-feriados" aria-live="polite"><p class="state">Carregando feriados…</p></div>
+          <form id="form-feriado" novalidate>
+            <div class="form-grid">
+              <div>
+                <label for="feriado-data">Data</label>
+                <input id="feriado-data" type="date" autocomplete="off">
+              </div>
+              <div>
+                <label for="feriado-descricao">Descrição</label>
+                <input id="feriado-descricao" type="text" maxlength="120" placeholder="Ex.: Natal">
+              </div>
+            </div>
+            <div id="feriado-erro" class="msg msg-erro" role="alert" hidden></div>
+            <div class="form-actions">
+              <button type="submit" id="btn-add-feriado" class="btn btn-ghost">Adicionar feriado</button>
+            </div>
+          </form>
+        </section>
+
+        <section class="panel panel-danger" aria-labelledby="admin-demo-titulo">
+          <h2 id="admin-demo-titulo">Demonstração</h2>
+          <p class="section-sub">Restaura os dados de demonstração originais. Todos os agendamentos, bloqueios e cadastros atuais serão apagados.</p>
+          <button type="button" id="btn-reset-demo" class="btn btn-danger">Restaurar dados de demonstração</button>
+        </section>
+      </div>
+
+      <div id="admin-restrito" hidden>
+        <div class="panel">
+          <h2>Acesso restrito</h2>
+          <p id="admin-restrito-msg" class="msg msg-erro">Acesso restrito: sua conta não tem permissão de administrador.</p>
+          <p class="section-sub">Entre com uma conta de equipe que tenha papel de administrador.</p>
+          <button type="button" class="btn btn-gold" data-goto="barbeiro">Entrar com conta da equipe</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p><strong>BARBER PRIME</strong> · Barbearia · Atendimento com hora marcada.</p>
+  </footer>
+
+  <!-- Modal de confirmação reutilizável -->
+  <div id="modal-overlay" class="modal-overlay" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-titulo" aria-describedby="modal-texto">
+      <h2 id="modal-titulo">Confirmar</h2>
+      <p id="modal-texto"></p>
+      <div class="modal-actions">
+        <button type="button" id="modal-cancelar" class="btn btn-ghost">Voltar</button>
+        <button type="button" id="modal-confirmar" class="btn btn-gold">Confirmar</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

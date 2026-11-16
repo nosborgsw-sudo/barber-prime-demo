@@ -1,0 +1,2838 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<meta name="description" content="Barber Prime — demonstração offline com dados fictícios salvos no próprio navegador.">
+<title>Barber Prime — Demonstração offline</title>
+<style>
+:root{
+  --bg:#0a0a0b;
+  --bg-2:#101012;
+  --surface:#161618;
+  --surface-2:#1d1d20;
+  --surface-3:#242427;
+  --gold:#c9a24b;
+  --gold-bright:#e7cc86;
+  --gold-soft:rgba(201,162,75,.14);
+  --gold-line:rgba(201,162,75,.22);
+  --text:#f5f1e8;
+  --muted:#b5b0a3;
+  --line:rgba(255,255,255,.08);
+  --danger:#f2a7a7;
+  --danger-soft:rgba(198,74,74,.16);
+  --ok:#91d8b2;
+  --ok-soft:rgba(80,170,126,.16);
+  --warn:#e6c07e;
+  --radius:18px;
+  --serif:Georgia,"Iowan Old Style","Palatino Linotype","Times New Roman",serif;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --banner-h:66px;
+  --shadow:0 18px 50px rgba(0,0,0,.32);
+}
+@media (min-width:760px){
+  :root{--banner-h:46px}
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:calc(var(--banner-h) + 12px)}
+body{
+  margin:0;
+  padding:var(--banner-h) 0 100px;
+  background:
+    radial-gradient(900px 520px at 50% -8%, rgba(201,162,75,.12), transparent 60%),
+    radial-gradient(700px 420px at 90% 40%, rgba(201,162,75,.045), transparent 70%),
+    var(--bg);
+  color:var(--text);
+  font-family:var(--sans);
+  font-size:16px;
+  line-height:1.55;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+@media (min-width:860px){body{padding-bottom:40px}}
+h1,h2,h3,h4{font-family:var(--serif);font-weight:600;letter-spacing:.01em;margin:0 0 .35em}
+p{margin:0 0 .8em}
+p:last-child{margin-bottom:0}
+p,h1,h2,h3,h4,strong,span,button,label{overflow-wrap:break-word}
+button{font:inherit;color:inherit}
+button,input,select,textarea{font-family:inherit}
+button{cursor:pointer}
+a{color:var(--gold-bright)}
+::selection{background:rgba(201,162,75,.35);color:#fff}
+:focus-visible{outline:2px solid var(--gold-bright);outline-offset:2px}
+.visually-hidden{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.skip-link{position:fixed;left:12px;top:8px;z-index:120;display:inline-flex;align-items:center;min-height:44px;background:var(--gold);color:#1b1507;padding:10px 14px;border-radius:10px;transform:translateY(-160%);transition:transform .2s ease;font-weight:700}
+.skip-link:focus{transform:translateY(0)}
+[hidden]{display:none!important}
+.svg-sprite{position:absolute;width:0;height:0;overflow:hidden}
+.icon{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.icon-sm{width:16px;height:16px}
+.icon-lg{width:24px;height:24px}
+
+/* Banner fixo de demonstração */
+#banner-demo{
+  position:fixed;inset:0 0 auto 0;z-index:110;
+  min-height:var(--banner-h);
+  display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:2px 8px;
+  padding:7px 14px;
+  background:
+    linear-gradient(180deg,rgba(58,47,22,.98),rgba(38,31,16,.98));
+  border-bottom:1px solid rgba(201,162,75,.55);
+  box-shadow:0 6px 24px rgba(0,0,0,.45);
+  color:#f3e8cb;
+  text-align:center;
+  font-size:11.5px;
+  line-height:1.3;
+  letter-spacing:.01em;
+}
+#banner-demo strong{
+  color:var(--gold-bright);
+  font-size:12px;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  white-space:nowrap;
+}
+#banner-demo span{opacity:.95}
+
+/* Topo */
+.topbar{
+  max-width:1180px;margin:0 auto;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:18px 18px 10px;
+}
+.wordmark{display:flex;align-items:center;gap:9px;font-family:var(--serif);font-size:17px;letter-spacing:.2em;white-space:nowrap;color:var(--text)}
+.wordmark em{font-style:normal;color:var(--gold-bright)}
+.wordmark .icon{width:21px;height:21px;color:var(--gold)}
+.user-area{display:flex;align-items:center;gap:8px;min-width:0}
+#usuario-atual{
+  min-width:0;font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  max-width:42vw;
+  padding:6px 10px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.025)
+}
+#btn-sair{
+  min-height:44px;padding:8px 13px;border-radius:999px;border:1px solid var(--gold-line);
+  background:transparent;color:var(--gold-bright);font-size:12px;font-weight:700;white-space:nowrap
+}
+#btn-sair:hover{background:var(--gold-soft)}
+@media (min-width:700px){#usuario-atual{max-width:320px}}
+
+/* Navegação inferior no celular / barra no topo no desktop */
+.navbar{
+  position:fixed;left:0;right:0;bottom:0;z-index:90;
+  display:grid;grid-template-columns:repeat(6,1fr);
+  background:rgba(12,12,14,.97);
+  border-top:1px solid var(--gold-line);
+  box-shadow:0 -12px 30px rgba(0,0,0,.35);
+  padding-bottom:env(safe-area-inset-bottom);
+}
+.nav-btn{
+  position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  min-height:58px;padding:6px 2px;border:0;background:transparent;color:#aaa598;
+  font-size:10px;font-weight:600;letter-spacing:.01em;line-height:1.1;
+  transition:color .2s ease,background .2s ease;
+}
+.nav-btn .icon{width:19px;height:19px}
+.nav-btn[aria-current="page"]{color:var(--gold-bright)}
+.nav-btn[aria-current="page"]::before{
+  content:"";position:absolute;top:0;left:50%;transform:translateX(-50%);
+  width:26px;height:2px;border-radius:0 0 3px 3px;background:var(--gold)
+}
+.nav-btn:hover{color:var(--text);background:rgba(201,162,75,.06)}
+@media (min-width:860px){
+  .navbar{
+    position:sticky;top:var(--banner-h);
+    max-width:1180px;margin:0 auto;
+    grid-template-columns:repeat(6,auto);justify-content:center;gap:3px;
+    padding:7px 14px;
+    border:1px solid var(--gold-line);border-top:0;border-radius:0 0 18px 18px;
+    background:rgba(12,12,14,.9);
+    -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+  }
+  .nav-btn{flex-direction:row;gap:7px;min-height:46px;padding:8px 14px;font-size:12.5px;border-radius:9px}
+  .nav-btn .icon{width:17px;height:17px}
+  .nav-btn[aria-current="page"]{background:var(--gold-soft)}
+  .nav-btn[aria-current="page"]::before{display:none}
+}
+
+/* Estrutura */
+.conteudo{max-width:1180px;margin:0 auto;padding:12px 16px 30px}
+.page-title{
+  font-size:clamp(26px,5.4vw,38px);
+  margin:10px 0 18px;
+  color:var(--text);
+  outline:none;
+}
+.page-title::after{content:"";display:block;width:44px;height:2px;margin-top:9px;background:linear-gradient(90deg,var(--gold),transparent);border-radius:2px}
+.view:not([hidden]){animation:rise .35s ease both}
+@keyframes rise{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+.section{margin-top:28px}
+.section-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.section-head h2,.section-head h3{margin:0;font-size:clamp(20px,3.4vw,26px)}
+.section-head .muted{font-size:12.5px}
+.muted{color:var(--muted)}
+.small{font-size:12.5px}
+.gold{color:var(--gold-bright)}
+.stack{display:grid;gap:12px}
+.grid-2{display:grid;gap:14px}
+.two-col{display:grid;gap:14px}
+@media (min-width:760px){
+  .grid-2{grid-template-columns:1fr 1fr}
+  .two-col{grid-template-columns:1fr 1fr}
+}
+
+/* Cartões */
+.card{
+  min-width:0;
+  background:linear-gradient(180deg,rgba(26,26,29,.96),rgba(18,18,20,.96));
+  border:1px solid var(--gold-line);
+  border-radius:var(--radius);
+  padding:18px;
+  box-shadow:var(--shadow);
+}
+.card h2{font-size:clamp(20px,3.2vw,25px)}
+.card h3{font-size:18px}
+.subcard{
+  margin-top:14px;padding:14px;border-radius:14px;
+  border:1px dashed rgba(201,162,75,.25);background:rgba(255,255,255,.018)
+}
+.danger-card{border-color:rgba(198,74,74,.34)}
+.demo-note{text-align:center;color:var(--muted);font-size:12px;margin:26px 0 0}
+.empty{
+  padding:20px 12px;text-align:center;color:var(--muted);font-size:14px;
+  border:1px dashed var(--line);border-radius:14px;background:rgba(255,255,255,.015)
+}
+
+/* Hero */
+.hero{
+  position:relative;overflow:hidden;isolation:isolate;
+  padding:34px 20px 26px;border-radius:26px;text-align:center;
+  border:1px solid var(--gold-line);
+  background:
+    radial-gradient(420px 220px at 50% 0%,rgba(201,162,75,.2),transparent 70%),
+    linear-gradient(155deg,#1e1a11 0%,#131315 52%,#0f0f11 100%);
+  box-shadow:var(--shadow);
+}
+.hero::after{
+  content:"";position:absolute;inset:8px;border:1px solid rgba(201,162,75,.12);
+  border-radius:20px;pointer-events:none;z-index:-1
+}
+.hero-mark{
+  width:56px;height:56px;margin:0 auto 14px;border-radius:50%;
+  display:grid;place-items:center;color:var(--gold-bright);
+  background:radial-gradient(circle at 30% 25%,rgba(201,162,75,.28),rgba(201,162,75,.06));
+  border:1px solid var(--gold-line);
+  box-shadow:0 0 0 6px rgba(201,162,75,.045);
+}
+.hero-mark .icon{width:27px;height:27px}
+.kicker{font-size:10px;letter-spacing:.28em;text-transform:uppercase;color:var(--gold-bright);margin-bottom:10px}
+.hero-brand{
+  font-size:clamp(32px,8.5vw,58px);line-height:1.02;letter-spacing:.1em;
+  margin:0 0 10px;color:var(--text)
+}
+.hero-brand span{color:var(--gold-bright)}
+.hero-title{
+  font-family:var(--serif);font-size:clamp(21px,4.4vw,31px);line-height:1.16;
+  margin:0 auto 12px;max-width:19ch;color:#f5f1e8
+}
+.hero-sub{max-width:52ch;margin:0 auto 22px;color:var(--muted);font-size:14.5px}
+.hero-actions{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.hero-facts{display:flex;flex-wrap:wrap;gap:8px 16px;justify-content:center;margin-top:22px;color:var(--muted);font-size:12px}
+.hero-facts span{display:inline-flex;align-items:center;gap:6px}
+.hero-facts .icon{color:var(--gold);width:15px;height:15px}
+
+/* Botões */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  min-height:46px;padding:11px 18px;border-radius:13px;border:1px solid transparent;
+  font-size:14.5px;font-weight:700;line-height:1.2;text-align:center;text-decoration:none;
+  transition:transform .16s ease,background .2s ease,border-color .2s ease,box-shadow .2s ease
+}
+.btn:active{transform:translateY(1px)}
+.btn:disabled{opacity:.42;cursor:not-allowed;transform:none}
+.btn-gold{
+  background:linear-gradient(135deg,#efd79c 0%,#c9a24b 62%,#b58c38 100%);
+  color:#1c1608;
+  box-shadow:0 8px 24px rgba(201,162,75,.2)
+}
+.btn-gold:hover:not(:disabled){box-shadow:0 10px 30px rgba(201,162,75,.32)}
+.btn-outline{background:rgba(201,162,75,.06);border-color:var(--gold-line);color:var(--gold-bright)}
+.btn-outline:hover:not(:disabled){background:rgba(201,162,75,.14)}
+.btn-ghost{background:transparent;border-color:var(--line);color:var(--text)}
+.btn-ghost:hover:not(:disabled){background:rgba(255,255,255,.05)}
+.btn-danger{background:var(--danger-soft);border-color:rgba(242,167,167,.35);color:var(--danger)}
+.btn-danger:hover:not(:disabled){background:rgba(198,74,74,.25)}
+.btn-lg{min-height:52px;padding:14px 24px;font-size:16px;border-radius:15px}
+.btn-sm{min-height:44px;padding:9px 13px;font-size:12.5px;border-radius:11px}
+.icon-btn{
+  width:44px;height:44px;display:inline-grid;place-items:center;
+  border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--text)
+}
+.icon-btn:hover{background:rgba(201,162,75,.1);border-color:var(--gold-line)}
+.row-actions{display:flex;flex-wrap:wrap;gap:8px}
+
+/* Formulários */
+.field{display:flex;flex-direction:column;gap:6px;min-width:0;margin-bottom:12px}
+.field:last-child{margin-bottom:0}
+.field label,label.field-label{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.02em}
+input,select,textarea{
+  width:100%;min-width:0;min-height:46px;padding:10px 12px;
+  border-radius:12px;border:1px solid rgba(255,255,255,.13);
+  background:#101012;color:var(--text);font-size:16px;
+  transition:border-color .2s ease,background .2s ease
+}
+input::placeholder,textarea::placeholder{color:#8d897f;opacity:1}
+input:hover,select:hover{border-color:rgba(201,162,75,.3)}
+input:focus,select:focus{background:#121214;border-color:var(--gold)}
+select{
+  appearance:none;-webkit-appearance:none;
+  background-image:linear-gradient(45deg,transparent 50%,var(--gold) 50%),linear-gradient(135deg,var(--gold) 50%,transparent 50%);
+  background-position:calc(100% - 18px) 50%,calc(100% - 13px) 50%;
+  background-size:5px 5px,5px 5px;background-repeat:no-repeat;padding-right:34px
+}
+input[type="checkbox"]{width:20px;height:20px;min-height:0;accent-color:var(--gold);padding:0}
+.check{display:flex;align-items:center;gap:9px;min-height:46px;font-size:13px;color:var(--text);font-weight:600;cursor:pointer}
+.form-grid{display:grid;gap:0 12px}
+@media (min-width:640px){.form-grid{grid-template-columns:1fr 1fr}}
+.form-block{margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
+.form-block .btn{margin-top:4px}
+.erro{color:var(--danger);font-size:13px;min-height:0;margin:0 0 10px}
+.erro:empty{display:none}
+.ok-msg{color:var(--ok);font-size:13px;margin:0 0 10px}
+.resumo{color:var(--gold-bright);font-size:13.5px;font-weight:600;margin:12px 0 0}
+.help{font-size:12px;color:var(--muted);margin:8px 0 0}
+.inline-confirm{
+  margin-top:12px;padding:12px;border-radius:13px;
+  border:1px solid rgba(242,167,167,.32);background:rgba(198,74,74,.1)
+}
+.inline-confirm p{font-size:13px;margin-bottom:10px}
+.segmented{display:inline-flex;gap:4px;padding:4px;border:1px solid var(--line);border-radius:13px;background:rgba(255,255,255,.025);margin-bottom:14px}
+.seg-btn{
+  min-height:44px;padding:8px 16px;border:0;border-radius:9px;
+  background:transparent;color:var(--muted);font-size:12.5px;font-weight:700
+}
+.seg-btn[aria-pressed="true"]{background:var(--gold-soft);color:var(--gold-bright);box-shadow:0 0 0 1px var(--gold-line) inset}
+
+/* Escolhas de serviço/barbeiro */
+.choices{display:grid;grid-template-columns:1fr;gap:9px}
+.choices-2{grid-template-columns:1fr}
+@media (min-width:620px){.choices.services{grid-template-columns:1fr 1fr}.choices-2{grid-template-columns:1fr 1fr}}
+.choice{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  width:100%;min-height:58px;padding:12px 14px;border-radius:14px;
+  border:1px solid rgba(255,255,255,.08);background:var(--surface-2);
+  color:var(--text);text-align:left;transition:border-color .2s ease,background .2s ease,box-shadow .2s ease
+}
+.choice:hover{border-color:rgba(201,162,75,.45);background:#222226}
+.choice[aria-pressed="true"]{border-color:var(--gold);background:var(--gold-soft);box-shadow:0 0 0 1px var(--gold) inset}
+.choice-main{min-width:0}
+.choice-title{display:block;font-weight:700;font-size:14.5px;line-height:1.25}
+.choice-desc{display:block;color:var(--muted);font-size:12px;line-height:1.35;margin-top:2px}
+.choice-price{text-align:right;color:var(--gold-bright);font-weight:700;white-space:nowrap;font-size:14px}
+.choice-price small{display:block;color:var(--muted);font-weight:500;font-size:11px;margin-top:2px}
+.choice-barber{justify-content:flex-start}
+.choice-barber .choice-main{text-align:left}
+.avatar{
+  display:inline-grid;place-items:center;flex:none;
+  width:52px;height:52px;border-radius:50%;
+  background:linear-gradient(145deg,#3a2f19,#1e1a12);
+  border:1px solid var(--gold-line);color:var(--gold-bright);
+  font-family:var(--serif);font-size:17px;font-weight:700;letter-spacing:.03em
+}
+.avatar-sm{width:36px;height:36px;font-size:12px}
+.avatar-xs{width:30px;height:30px;font-size:10.5px}
+.avatar-generic{background:rgba(255,255,255,.04);color:var(--muted);border-color:var(--line)}
+.barbers-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:12px}
+.barber-card{
+  display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;
+  padding:18px 12px;border-radius:16px;
+  background:linear-gradient(180deg,#1a1a1d,#121214);
+  border:1px solid var(--line);
+}
+.barber-card:hover{border-color:var(--gold-line)}
+.barber-card h3{font-size:16px;margin:2px 0 0}
+.barber-card .handle{color:var(--gold);font-size:11px;letter-spacing:.06em}
+.barber-card .bio{color:var(--muted);font-size:12px;line-height:1.4}
+.tags{display:flex;flex-wrap:wrap;gap:5px;justify-content:center}
+.tag{
+  font-size:10.5px;line-height:1.2;padding:4px 8px;border-radius:999px;
+  border:1px solid var(--gold-line);background:rgba(201,162,75,.07);color:#dcc48e
+}
+
+/* Calendário */
+.cal-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:4px 0 10px}
+.cal-head strong{font-family:var(--serif);font-size:16px;font-weight:600}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal-day{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
+  min-width:0;min-height:60px;padding:5px 1px;border-radius:10px;
+  border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.025);
+  color:var(--text);font-size:10.5px;line-height:1.15;transition:border-color .15s ease,background .15s ease
+}
+.cal-day .wd{font-size:9px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.cal-day .num{font-size:15px;font-weight:700}
+.cal-day .dot{width:4px;height:4px;border-radius:50%;background:var(--gold);margin-top:1px}
+.cal-day .closed{font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:.02em}
+.cal-day:hover:not(:disabled){border-color:rgba(201,162,75,.5);background:rgba(201,162,75,.09)}
+.cal-day[aria-pressed="true"]{border-color:var(--gold);background:var(--gold-soft);box-shadow:0 0 0 1px var(--gold) inset}
+.cal-day.today{outline:1px dashed rgba(201,162,75,.5);outline-offset:-3px}
+.cal-day:disabled{opacity:.34;cursor:not-allowed}
+.cal-day:disabled .num{text-decoration:line-through;text-decoration-thickness:1px}
+
+/* Horários */
+.slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(86px,1fr));gap:8px}
+.slot{
+  min-height:48px;padding:7px 6px;border-radius:11px;
+  border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.03);
+  color:var(--text);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px
+}
+.slot strong{font-size:14px;letter-spacing:.02em}
+.slot small{font-size:9.5px;color:var(--muted);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.slot:hover:not(:disabled){border-color:rgba(201,162,75,.55);background:rgba(201,162,75,.1)}
+.slot[aria-pressed="true"]{border-color:var(--gold);background:var(--gold);color:#1c1608}
+.slot[aria-pressed="true"] small{color:#41330f}
+
+/* Confirmação */
+.confirm-card{position:relative}
+.confirm-card .btn-lg{width:100%}
+.confirmacao{
+  margin-top:16px;padding:18px 14px;text-align:center;border-radius:16px;
+  border:1px solid rgba(145,216,178,.4);
+  background:radial-gradient(circle at 50% 0%,rgba(80,170,126,.18),rgba(80,170,126,.045))
+}
+.confirmacao h3{color:var(--ok);font-size:22px;margin:6px 0 6px}
+.confirmacao p{font-size:13.5px;color:#dcefe4}
+.check-badge{
+  width:46px;height:46px;margin:0 auto;display:grid;place-items:center;border-radius:50%;
+  background:rgba(80,170,126,.18);border:1px solid rgba(145,216,178,.45);color:var(--ok)
+}
+.check-badge .icon{width:24px;height:24px}
+.confirm-actions{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:12px}
+
+/* Filtros e cards de agendamento */
+.filter-bar{display:flex;gap:6px;padding:6px;border-radius:14px;margin-bottom:14px}
+.chip-btn{
+  flex:1;min-height:44px;border:0;border-radius:10px;background:transparent;
+  color:var(--muted);font-size:13px;font-weight:700
+}
+.chip-btn[aria-pressed="true"]{background:var(--gold-soft);color:var(--gold-bright);box-shadow:0 0 0 1px var(--gold-line) inset}
+.appt-card{
+  min-width:0;padding:16px;border-radius:16px;
+  border:1px solid var(--line);background:linear-gradient(180deg,#19191c,#121214)
+}
+.appt-card:hover{border-color:var(--gold-line)}
+.appt-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:12px}
+.appt-date{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--gold)}
+.appt-top h3{margin:3px 0 0;font-size:20px;line-height:1.15}
+.status{
+  display:inline-block;font-size:10px;font-weight:800;letter-spacing:.1em;
+  padding:5px 8px;border-radius:999px;border:1px solid transparent;white-space:nowrap
+}
+.status-agendado{color:var(--gold-bright);background:var(--gold-soft);border-color:var(--gold-line)}
+.status-concluido{color:var(--ok);background:var(--ok-soft);border-color:rgba(145,216,178,.35)}
+.status-cancelado{color:var(--danger);background:var(--danger-soft);border-color:rgba(242,167,167,.3)}
+.status-faltou{color:var(--warn);background:rgba(230,192,126,.12);border-color:rgba(230,192,126,.3)}
+.meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px;margin-bottom:4px}
+.meta-grid>div{min-width:0}
+.meta-grid span{display:block;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:1px}
+.meta-grid strong{font-size:13.5px;font-weight:600}
+.appt-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;padding-top:13px;border-top:1px solid var(--line)}
+
+/* Painel barbeiro */
+.barber-head{display:flex;align-items:center;gap:13px}
+.barber-head h2{font-size:22px;margin:0}
+.barber-head p{margin:2px 0 0}
+.barber-summary{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.badge{
+  display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;
+  border:1px solid var(--line);background:rgba(255,255,255,.03);font-size:11.5px;color:var(--muted)
+}
+.badge .icon{width:14px;height:14px;color:var(--gold)}
+.agenda-item{
+  display:grid;grid-template-columns:66px minmax(0,1fr);gap:12px;
+  padding:13px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.022)
+}
+.agenda-item .time{font-family:var(--serif);font-size:18px;color:var(--gold-bright);line-height:1.15}
+.agenda-item .time small{display:block;font-family:var(--sans);font-size:10.5px;color:var(--muted);margin-top:2px}
+.agenda-item h3{font-size:16px;margin:2px 0 2px}
+.agenda-item .line{font-size:12.5px;color:var(--muted);margin:0}
+.agenda-actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+.block-item{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
+  padding:11px 12px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.02)
+}
+.block-item strong{display:block;font-size:13.5px}
+.block-item span{display:block;font-size:11.5px;color:var(--muted)}
+
+/* Admin */
+.kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+@media (min-width:780px){.kpis{grid-template-columns:repeat(5,1fr)}}
+.kpi{
+  min-width:0;padding:14px;border-radius:14px;
+  border:1px solid var(--line);background:rgba(255,255,255,.025)
+}
+.kpi span{display:block;font-size:10.5px;letter-spacing:.08em;color:var(--muted);line-height:1.3;min-height:27px}
+.kpi strong{display:block;font-family:var(--serif);font-size:clamp(22px,4vw,29px);font-weight:600;color:var(--gold-bright);margin-top:3px;line-height:1.1}
+.kpi small{display:block;font-size:10px;color:var(--muted);margin-top:2px}
+.admin-agendas{display:grid;grid-template-columns:1fr;gap:12px}
+@media (min-width:640px){.admin-agendas{grid-template-columns:1fr 1fr}}
+@media (min-width:980px){.admin-agendas{grid-template-columns:repeat(4,1fr)}}
+.admin-agenda-col{
+  min-width:0;padding:13px;border-radius:14px;
+  border:1px solid var(--line);background:rgba(255,255,255,.02)
+}
+.admin-agenda-col.inactive{opacity:.62}
+.col-head{display:flex;align-items:center;gap:9px;margin-bottom:10px;padding-bottom:9px;border-bottom:1px solid var(--line)}
+.col-head strong{display:block;font-size:13.5px;line-height:1.2}
+.col-head small{display:block;font-size:10.5px;color:var(--gold)}
+.mini-appt{
+  display:flex;gap:8px;padding:8px;border-radius:9px;margin-bottom:6px;
+  background:rgba(255,255,255,.03);border-left:2px solid var(--gold)
+}
+.mini-appt.status-concluido{border-left-color:var(--ok)}
+.mini-appt.status-cancelado{border-left-color:var(--danger)}
+.mini-appt.status-faltou{border-left-color:var(--warn)}
+.mini-time{font-family:var(--serif);font-size:13px;color:var(--gold-bright);min-width:38px}
+.mini-info{min-width:0;font-size:11px;line-height:1.35}
+.mini-info strong{display:block;font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mini-info span{display:block;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mini-info .status{margin-top:3px;padding:2px 5px;font-size:8px;letter-spacing:.06em}
+.admin-row{
+  display:grid;gap:10px;padding:13px;border-radius:13px;
+  border:1px solid var(--line);background:rgba(255,255,255,.02)
+}
+.admin-row .field{margin-bottom:0}
+.admin-row>.btn{justify-self:start}
+@media (min-width:760px){
+  .admin-row{grid-template-columns:minmax(0,1.1fr) minmax(0,1.5fr) auto auto;align-items:end}
+  .admin-row>.btn{align-self:end;justify-self:end}
+}
+.admin-servico-grid{display:grid;gap:10px}
+@media (min-width:760px){.admin-servico-grid{grid-template-columns:minmax(0,1.2fr) 110px 96px auto auto;align-items:end}}
+.client-row{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.02)}
+.client-row .client-main{min-width:0;flex:1}
+.client-row strong{display:block;font-size:13.5px}
+.client-row span{display:block;font-size:11.5px;color:var(--muted)}
+.client-row .count{font-size:11px;color:var(--gold-bright);white-space:nowrap}
+.holiday-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-radius:11px;border:1px solid var(--line);background:rgba(255,255,255,.02)}
+.holiday-row strong{font-size:13px}
+.holiday-row span{font-size:11.5px;color:var(--muted)}
+
+/* Toasts */
+.toast{
+  position:fixed;left:50%;bottom:calc(76px + env(safe-area-inset-bottom));z-index:100;
+  transform:translate(-50%,14px);opacity:0;pointer-events:none;
+  max-width:min(92vw,440px);width:max-content;
+  padding:11px 16px;border-radius:12px;
+  border:1px solid var(--gold-line);background:#222226;color:var(--text);
+  box-shadow:0 14px 40px rgba(0,0,0,.5);font-size:13px;line-height:1.35;text-align:center;
+  transition:opacity .22s ease,transform .22s ease
+}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.toast.erro{border-color:rgba(242,167,167,.5);color:#ffd4d4}
+@media (min-width:860px){.toast{bottom:24px}}
+
+/* Serviços na home */
+.list-card{padding:5px 16px}
+.service-row{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;
+  min-height:66px;padding:13px 2px;border:0;border-bottom:1px solid var(--line);
+  background:transparent;color:var(--text);text-align:left;transition:background .15s ease
+}
+.service-row:last-child{border-bottom:0}
+.service-row:hover{background:rgba(201,162,75,.045)}
+.service-row .s-main{min-width:0}
+.service-row strong{display:block;font-size:15px;font-family:var(--serif);font-weight:600}
+.service-row small{display:block;font-size:11.5px;color:var(--muted);line-height:1.35}
+.service-row .s-side{text-align:right;flex:none}
+.service-row .s-price{display:block;color:var(--gold-bright);font-weight:700;font-size:14.5px}
+.service-row .s-dur{display:inline-flex;align-items:center;gap:4px;font-size:10.5px;color:var(--muted);margin-top:2px}
+.service-row .s-dur .icon{width:12px;height:12px}
+
+/* Informações da home */
+.info-card h2{font-size:20px;margin-bottom:12px}
+.info-list{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.info-list li{display:flex;align-items:flex-start;gap:10px}
+.info-list .icon{color:var(--gold);margin-top:2px}
+.info-list strong{display:block;font-size:13.5px}
+.info-list span{display:block;color:var(--muted);font-size:12.5px}
+.copy-note{font-size:11px;color:var(--muted);margin-top:12px;border-top:1px solid var(--line);padding-top:10px}
+
+/* Sessão */
+.sessao-card{padding:14px 16px;margin-bottom:14px}
+.session-line{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.session-line .client-main{min-width:0;flex:1}
+.session-line strong{display:block;font-size:14px}
+.session-line span{display:block;font-size:11.5px;color:var(--gold)}
+.demo-access{margin-top:14px}
+.demo-btns{display:grid;grid-template-columns:1fr;gap:9px;margin-top:12px}
+@media (min-width:680px){.demo-btns{grid-template-columns:repeat(3,1fr)}}
+.demo-btns .btn{flex-direction:column;align-items:flex-start;gap:1px;min-height:60px;text-align:left;font-size:13px}
+.demo-btns .btn small{display:block;font-size:10.5px;font-weight:500;color:var(--muted)}
+.demo-btns .btn .icon{position:absolute;opacity:0;pointer-events:none}
+.credenciais{font-size:11.5px;color:var(--muted);margin-top:12px;line-height:1.5}
+.credenciais code{color:var(--gold-bright);font-family:ui-monospace,Consolas,monospace;font-size:11px}
+
+@media (max-width:520px){
+  .topbar{padding:16px 14px 8px;gap:8px}
+  .wordmark{font-size:15px;letter-spacing:.14em;gap:7px}
+  .wordmark .icon{width:18px;height:18px}
+  .user-area{gap:6px}
+  #usuario-atual{font-size:10.5px;padding:5px 8px;max-width:34vw}
+  #btn-sair{font-size:11.5px;padding:7px 10px}
+}
+@media (max-width:420px){
+  .hero{padding:28px 15px 22px;border-radius:22px}
+  .card{padding:15px}
+  .meta-grid{grid-template-columns:1fr 1fr}
+  .agenda-item{grid-template-columns:55px minmax(0,1fr);gap:9px;padding:11px}
+  .agenda-item .time{font-size:16px}
+  .choice{padding:11px}
+  .choice-desc{display:none}
+  /* 7 colunas com alvo de toque >=44px dentro do cartão */
+  .cal-grid{margin:0 -8px;gap:2px}
+  .cal-day{min-height:58px;border-radius:8px}
+  .cal-day .wd{font-size:8px}
+  .cal-day .num{font-size:14px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#titulo-pagina">Ir para o conteúdo principal</a>
+
+<div id="banner-demo" role="note" aria-label="Aviso de demonstração">
+  <strong>DEMONSTRAÇÃO</strong>
+  <span>— dados fictícios salvos neste navegador · não é produção</span>
+</div>
+
+<svg class="svg-sprite" aria-hidden="true" focusable="false">
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 10.8 12 3l9 7.8"/><path d="M5.5 9.5V20a1 1 0 0 0 1 1H10v-6h4v6h3.5a1 1 0 0 0 1-1V9.5"/></symbol>
+  <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></symbol>
+  <symbol id="i-scissors" viewBox="0 0 24 24"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.1 15.9M8.1 8.1 20 20"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 5 6v5c0 4.5 3 7.6 7 10 4-2.4 7-5.5 7-10V6z"/><path d="m9.5 12 1.8 1.8L15 10"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="i-arrow-left" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></symbol>
+  <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></symbol>
+  <symbol id="i-sparkle" viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></symbol>
+  <symbol id="i-logout" viewBox="0 0 24 24"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3"/><path d="M10 8l-4 4 4 4M6 12h9"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></symbol>
+  <symbol id="i-edit" viewBox="0 0 24 24"><path d="M4 20h4L20 8l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></symbol>
+</svg>
+
+<header class="topbar">
+  <div class="wordmark" aria-label="Barber Prime">
+    <svg class="icon" aria-hidden="true"><use href="#i-scissors"></use></svg>
+    <span>BARBER <em>PRIME</em></span>
+  </div>
+  <div class="user-area">
+    <span id="usuario-atual">Visitante</span>
+    <button id="btn-sair" type="button">Sair</button>
+  </div>
+</header>
+
+<nav class="navbar" aria-label="Navegação principal">
+  <button class="nav-btn" id="nav-inicio" type="button" aria-current="page"><svg class="icon" aria-hidden="true"><use href="#i-home"></use></svg><span>Início</span></button>
+  <button class="nav-btn" id="nav-agendar" type="button"><svg class="icon" aria-hidden="true"><use href="#i-calendar"></use></svg><span>Agendar</span></button>
+  <button class="nav-btn" id="nav-meus" type="button"><svg class="icon" aria-hidden="true"><use href="#i-list"></use></svg><span>Meus</span></button>
+  <button class="nav-btn" id="nav-entrar" type="button"><svg class="icon" aria-hidden="true"><use href="#i-user"></use></svg><span>Entrar</span></button>
+  <button class="nav-btn" id="nav-barbeiro" type="button"><svg class="icon" aria-hidden="true"><use href="#i-scissors"></use></svg><span>Barbeiro</span></button>
+  <button class="nav-btn" id="nav-admin" type="button"><svg class="icon" aria-hidden="true"><use href="#i-shield"></use></svg><span>Admin</span></button>
+</nav>
+
+<main id="conteudo" class="conteudo">
+  <h1 id="titulo-pagina" class="page-title" tabindex="-1">Início</h1>
+
+  <!-- INÍCIO -->
+  <section id="view-inicio" class="view">
+    <div class="hero">
+      <div class="hero-mark" aria-hidden="true"><svg class="icon"><use href="#i-scissors"></use></svg></div>
+      <p class="kicker">Barbearia premium · São Paulo</p>
+      <h2 class="hero-brand">BARBER <span>PRIME</span></h2>
+      <p class="hero-title">Tradição no corte.<br>Precisão no seu tempo.</p>
+      <p class="hero-sub">Escolha seu profissional, encontre o melhor horário e viva uma experiência à altura do seu estilo.</p>
+      <div class="hero-actions">
+        <button id="btn-agendar" class="btn btn-gold btn-lg" type="button">Agendar agora</button>
+        <button id="btn-home-meus" class="btn btn-outline btn-lg" type="button">Meus agendamentos</button>
+      </div>
+      <div class="hero-facts">
+        <span><svg class="icon" aria-hidden="true"><use href="#i-clock"></use></svg>Grade de 15 min</span>
+        <span><svg class="icon" aria-hidden="true"><use href="#i-user"></use></svg>4 barbeiros</span>
+        <span><svg class="icon" aria-hidden="true"><use href="#i-sparkle"></use></svg>5 serviços</span>
+      </div>
+    </div>
+
+    <section class="section">
+      <div class="section-head"><h2>Nossos barbeiros</h2><span class="muted">Especialistas da casa</span></div>
+      <div id="home-barbeiros" class="barbers-grid"></div>
+    </section>
+
+    <section class="section">
+      <div class="section-head"><h2>Serviços</h2><span class="muted">Preço e duração</span></div>
+      <div id="home-servicos" class="card list-card"></div>
+    </section>
+
+    <section class="section two-col">
+      <div class="card info-card">
+        <h2>Horário de funcionamento</h2>
+        <ul class="info-list">
+          <li><svg class="icon" aria-hidden="true"><use href="#i-clock"></use></svg><div><strong id="home-horario">Segunda a sábado, 09:00 às 19:00</strong><span>Jornada dos barbeiros: 09:00 às 18:00</span></div></li>
+          <li><svg class="icon" aria-hidden="true"><use href="#i-info"></use></svg><div><strong>Intervalo</strong><span>12:00 às 13:00 em todos os dias de atendimento</span></div></li>
+          <li><svg class="icon" aria-hidden="true"><use href="#i-x"></use></svg><div><strong>Domingo e feriados</strong><span>Fechado</span></div></li>
+        </ul>
+        <p class="copy-note">Agendamentos com antecedência mínima de 30 minutos e máxima de 365 dias.</p>
+      </div>
+      <div class="card info-card">
+        <h2>Contato</h2>
+        <ul class="info-list">
+          <li><svg class="icon" aria-hidden="true"><use href="#i-phone"></use></svg><div><strong>(11) 4002-8922</strong><span>Contato fictício da demonstração</span></div></li>
+          <li><svg class="icon" aria-hidden="true"><use href="#i-pin"></use></svg><div><strong>Rua das Navalhas, 128</strong><span>Vila Madalena · São Paulo/SP</span></div></li>
+        </ul>
+        <p class="copy-note">Endereço e telefone são fictícios. Nenhuma ligação ou mensagem é enviada.</p>
+        <button class="btn btn-outline" type="button" data-action="go-agendar">Agendar horário</button>
+      </div>
+    </section>
+
+    <p class="demo-note">Demonstração offline do Barber Prime. Os dados ficam apenas neste navegador e podem ser restaurados no painel administrativo.</p>
+  </section>
+
+  <!-- AGENDAR -->
+  <section id="view-agendar" class="view" hidden>
+    <div class="stack">
+      <section class="card">
+        <div class="section-head"><h2>1. Serviço</h2><span class="muted">Obrigatório</span></div>
+        <div id="lista-servicos" class="choices services"></div>
+        <p id="resumo-servico" class="resumo">Nenhum serviço selecionado.</p>
+      </section>
+
+      <section class="card">
+        <div class="section-head"><h2>2. Profissional</h2><span class="muted">Opcional</span></div>
+        <div id="lista-barbeiros" class="choices choices-2"></div>
+        <p id="resumo-barbeiro" class="resumo">Qualquer profissional disponível.</p>
+      </section>
+
+      <section class="card">
+        <div class="section-head"><h2>3. Data</h2><span class="muted">Semanas navegáveis</span></div>
+        <div class="cal-head">
+          <button id="btn-semana-anterior" class="icon-btn" type="button" aria-label="Semana anterior"><svg class="icon" aria-hidden="true"><use href="#i-arrow-left"></use></svg></button>
+          <strong id="cal-titulo">—</strong>
+          <button id="btn-semana-proxima" class="icon-btn" type="button" aria-label="Próxima semana"><svg class="icon" aria-hidden="true"><use href="#i-arrow-right"></use></svg></button>
+        </div>
+        <div id="calendario" class="cal-grid" role="group" aria-label="Calendário de datas"></div>
+        <p id="data-selecionada" class="resumo">Nenhuma data selecionada.</p>
+        <button id="btn-proxima-data" class="btn btn-outline" type="button">Próxima data com vaga</button>
+      </section>
+
+      <section class="card">
+        <div class="section-head"><h2>4. Horário</h2><span class="muted">Vagas reais</span></div>
+        <div id="horarios" class="slots" role="group" aria-label="Horários disponíveis"></div>
+        <p id="resumo-horario" class="resumo">Escolha serviço e data para ver os horários.</p>
+        <button id="btn-proximo-horario" class="btn btn-outline" type="button">Primeiro horário livre</button>
+      </section>
+
+      <section class="card confirm-card">
+        <p id="erro-booking" class="erro" role="alert"></p>
+        <button id="btn-confirmar" class="btn btn-gold btn-lg" type="button">Confirmar agendamento</button>
+        <p class="help">A reserva é feita para o cliente conectado. Entre com telefone e PIN para confirmar.</p>
+        <div id="confirmacao" class="confirmacao" role="status" hidden></div>
+      </section>
+    </div>
+  </section>
+
+  <!-- MEUS AGENDAMENTOS -->
+  <section id="view-meus" class="view" hidden>
+    <div class="card filter-bar" role="group" aria-label="Filtrar agendamentos">
+      <button id="filtro-proximos" class="chip-btn" type="button" aria-pressed="true">Próximos</button>
+      <button id="filtro-historico" class="chip-btn" type="button" aria-pressed="false">Histórico</button>
+    </div>
+
+    <div id="reagendar-painel" class="card" hidden>
+      <div class="section-head">
+        <h2>Reagendar</h2>
+        <button class="icon-btn" type="button" data-action="close-reschedule" aria-label="Fechar reagendamento"><svg class="icon" aria-hidden="true"><use href="#i-x"></use></svg></button>
+      </div>
+      <p id="reagendar-resumo" class="muted"></p>
+      <div class="form-grid">
+        <div class="field">
+          <label for="reagendar-data">Nova data</label>
+          <input id="reagendar-data" type="date">
+        </div>
+        <div class="field">
+          <label for="reagendar-hora">Novo horário</label>
+          <select id="reagendar-hora"></select>
+        </div>
+      </div>
+      <p id="reagendar-erro" class="erro" role="alert"></p>
+      <button id="btn-salvar-reagendamento" class="btn btn-gold" type="button">Confirmar novo horário</button>
+    </div>
+
+    <div id="meus-agendamentos" class="stack"></div>
+  </section>
+
+  <!-- ENTRAR -->
+  <section id="view-entrar" class="view" hidden>
+    <div id="sessao-atual" class="card sessao-card"></div>
+
+    <div class="grid-2">
+      <form id="form-login" class="card" novalidate>
+        <h2>Já sou cliente</h2>
+        <p class="muted small">Entre com o telefone cadastrado e seu PIN.</p>
+        <div class="field">
+          <label for="login-telefone">Telefone</label>
+          <input id="login-telefone" type="tel" inputmode="numeric" autocomplete="tel" maxlength="15" placeholder="(11) 98765-0001">
+        </div>
+        <div class="field">
+          <label for="login-pin">PIN</label>
+          <input id="login-pin" type="password" inputmode="numeric" autocomplete="current-password" maxlength="6" placeholder="4 a 6 dígitos">
+        </div>
+        <p id="login-erro" class="erro" role="alert"></p>
+        <button id="btn-entrar-cliente" class="btn btn-gold" type="submit">Entrar</button>
+      </form>
+
+      <form id="form-cadastro" class="card" novalidate>
+        <h2>Primeira visita</h2>
+        <p class="muted small">Crie seu acesso em poucos segundos. É só isto que guardamos.</p>
+        <div class="form-grid">
+          <div class="field">
+            <label for="cadastro-nome">Nome</label>
+            <input id="cadastro-nome" type="text" autocomplete="given-name" maxlength="60" placeholder="Ana">
+          </div>
+          <div class="field">
+            <label for="cadastro-sobrenome">Sobrenome</label>
+            <input id="cadastro-sobrenome" type="text" autocomplete="family-name" maxlength="60" placeholder="Souza">
+          </div>
+        </div>
+        <div class="field">
+          <label for="cadastro-telefone">Telefone</label>
+          <input id="cadastro-telefone" type="tel" inputmode="numeric" autocomplete="tel" maxlength="15" placeholder="(11) 98765-0001">
+        </div>
+        <div class="field">
+          <label for="cadastro-pin">PIN de acesso (4 a 6 dígitos)</label>
+          <input id="cadastro-pin" type="password" inputmode="numeric" autocomplete="new-password" maxlength="6" placeholder="Ex.: 1234">
+        </div>
+        <p id="cadastro-erro" class="erro" role="alert"></p>
+        <button id="btn-cadastrar" class="btn btn-gold" type="submit">Criar acesso</button>
+      </form>
+    </div>
+
+    <form id="form-staff" class="card" novalidate style="margin-top:14px">
+      <div class="section-head"><h2>Área da equipe</h2><span class="muted">Barbeiros e administração</span></div>
+      <div class="form-grid">
+        <div class="field">
+          <label for="login-staff-login">Login</label>
+          <input id="login-staff-login" type="text" autocomplete="username" maxlength="40" placeholder="admin ou barbeiro1">
+        </div>
+        <div class="field">
+          <label for="login-staff-senha">Senha</label>
+          <input id="login-staff-senha" type="password" autocomplete="current-password" maxlength="40" placeholder="Sua senha">
+        </div>
+      </div>
+      <p id="login-staff-erro" class="erro" role="alert"></p>
+      <button id="btn-entrar-staff" class="btn btn-outline" type="submit">Entrar na equipe</button>
+    </form>
+
+    <div class="card demo-access">
+      <div class="section-head"><h2>Acesso rápido de demonstração</h2><span class="muted">1 clique</span></div>
+      <p class="muted small">Contas fictícias criadas pelo seed. Você pode alternar entre papéis a qualquer momento.</p>
+      <div class="demo-btns">
+        <button id="btn-demo-cliente" class="btn btn-outline" type="button">Cliente demo<small>Ana Souza · PIN 1234</small></button>
+        <button id="btn-demo-barbeiro" class="btn btn-outline" type="button">Barbeiro demo<small>Rafael Costa · barbeiro1</small></button>
+        <button id="btn-demo-admin" class="btn btn-outline" type="button">Admin demo<small>admin · admin123</small></button>
+      </div>
+      <p class="credenciais">Login de equipe: <code>admin / admin123</code> · <code>barbeiro1 … barbeiro4 / barbeiro123</code><br>Clientes demo: <code>11987650001 … 11987650004 / PIN 1234</code></p>
+    </div>
+  </section>
+
+  <!-- PAINEL BARBEIRO -->
+  <section id="view-barbeiro" class="view" hidden>
+    <div class="segmented" role="group" aria-label="Período da agenda">
+      <button id="agenda-hoje" class="seg-btn" type="button" aria-pressed="true">Hoje</button>
+      <button id="agenda-semana" class="seg-btn" type="button" aria-pressed="false">Próximos 7 dias</button>
+    </div>
+
+    <div id="painel-barbeiro" class="stack"></div>
+
+    <section class="card" style="margin-top:14px">
+      <div class="section-head">
+        <h2>Bloqueios de agenda</h2>
+        <button id="btn-bloquear" class="btn btn-outline" type="button">Bloquear horário</button>
+      </div>
+      <div id="bloqueio-form" class="form-block" hidden>
+        <div class="form-grid">
+          <div class="field">
+            <label for="bloqueio-data">Data</label>
+            <input id="bloqueio-data" type="date">
+          </div>
+          <div class="field">
+            <label for="bloqueio-motivo">Motivo</label>
+            <input id="bloqueio-motivo" type="text" maxlength="80" placeholder="Ex.: almoço, treino, compromisso">
+          </div>
+          <div class="field">
+            <label for="bloqueio-inicio">Início</label>
+            <input id="bloqueio-inicio" type="time" step="900" min="09:00" max="19:00" value="09:00">
+          </div>
+          <div class="field">
+            <label for="bloqueio-fim">Fim</label>
+            <input id="bloqueio-fim" type="time" step="900" min="09:00" max="19:00" value="10:00">
+          </div>
+        </div>
+        <p id="bloqueio-erro" class="erro" role="alert"></p>
+        <button id="btn-salvar-bloqueio" class="btn btn-gold" type="button">Salvar bloqueio</button>
+      </div>
+      <div id="lista-bloqueios" class="stack" style="margin-top:12px"></div>
+    </section>
+  </section>
+
+  <!-- PAINEL ADMIN -->
+  <section id="view-admin" class="view" hidden>
+    <div id="painel-admin">
+    <section class="card">
+      <div class="section-head"><h2>Visão geral de hoje</h2><span id="admin-hoje" class="muted"></span></div>
+      <div class="kpis">
+        <div class="kpi"><span>Agendamentos hoje</span><strong id="kpi-dia">0</strong><small>exceto cancelados</small></div>
+        <div class="kpi"><span>Concluídos</span><strong id="kpi-concluidos">0</strong><small>hoje</small></div>
+        <div class="kpi"><span>Cancelados</span><strong id="kpi-cancelados">0</strong><small>hoje</small></div>
+        <div class="kpi"><span>Clientes</span><strong id="kpi-clientes">0</strong><small>cadastrados</small></div>
+        <div class="kpi"><span>Receita estimada</span><strong id="kpi-receita">R$ 0,00</strong><small>concluídos hoje</small></div>
+      </div>
+    </section>
+
+    <section class="card" style="margin-top:14px">
+      <div class="section-head"><h2>Agendas por barbeiro</h2><span class="muted">Hoje</span></div>
+      <div id="admin-agendas" class="admin-agendas"></div>
+    </section>
+
+    <section class="card" style="margin-top:14px">
+      <div class="section-head">
+        <h2>Agendamento manual</h2>
+        <button id="btn-novo-agendamento" class="btn btn-gold" type="button">Novo agendamento</button>
+      </div>
+      <div id="manual-form" class="form-block" hidden>
+        <div class="form-grid">
+          <div class="field">
+            <label for="manual-cliente">Cliente</label>
+            <select id="manual-cliente"></select>
+          </div>
+          <div class="field">
+            <label for="manual-servico">Serviço</label>
+            <select id="manual-servico"></select>
+          </div>
+          <div class="field">
+            <label for="manual-barbeiro">Barbeiro</label>
+            <select id="manual-barbeiro"></select>
+          </div>
+          <div class="field">
+            <label for="manual-data">Data</label>
+            <input id="manual-data" type="date">
+          </div>
+          <div class="field">
+            <label for="manual-hora">Horário</label>
+            <select id="manual-hora"></select>
+          </div>
+        </div>
+        <p id="manual-erro" class="erro" role="alert"></p>
+        <button id="btn-manual-salvar" class="btn btn-gold" type="button">Salvar agendamento manual</button>
+      </div>
+    </section>
+
+    <section class="card" style="margin-top:14px">
+      <div class="section-head"><h2>Barbeiros</h2><span class="muted">Nome, especialidades e status</span></div>
+      <div id="admin-barbeiros" class="stack"></div>
+    </section>
+
+    <section class="card" style="margin-top:14px">
+      <div class="section-head"><h2>Serviços</h2><span class="muted">Preço e duração</span></div>
+      <div id="admin-servicos" class="stack"></div>
+      <div class="subcard">
+        <h3>Novo serviço</h3>
+        <div class="form-grid">
+          <div class="field">
+            <label for="novo-servico-nome">Nome</label>
+            <input id="novo-servico-nome" type="text" maxlength="60" placeholder="Ex.: Hidratação">
+          </div>
+          <div class="field">
+            <label for="novo-servico-preco">Preço (R$)</label>
+            <input id="novo-servico-preco" type="number" min="0" step="0.01" inputmode="decimal" placeholder="45,00">
+          </div>
+          <div class="field">
+            <label for="novo-servico-duracao">Duração (min)</label>
+            <input id="novo-servico-duracao" type="number" min="15" max="240" step="15" value="30">
+          </div>
+          <div class="field">
+            <label for="novo-servico-descricao">Descrição</label>
+            <input id="novo-servico-descricao" type="text" maxlength="120" placeholder="Descrição curta">
+          </div>
+        </div>
+        <label class="check" for="novo-servico-ativo"><input id="novo-servico-ativo" type="checkbox" checked> Ativo para agendamento</label>
+        <p id="novo-servico-erro" class="erro" role="alert"></p>
+        <button id="btn-criar-servico" class="btn btn-outline" type="button">Criar serviço</button>
+      </div>
+    </section>
+
+    <section class="card" style="margin-top:14px">
+      <div class="section-head"><h2>Clientes</h2><span class="muted">Base de demonstração</span></div>
+      <div id="admin-clientes" class="stack"></div>
+    </section>
+
+    <section class="card" id="admin-feriados" style="margin-top:14px">
+      <div class="section-head"><h2>Feriados e fechamentos</h2><span class="muted">Bloqueiam a loja</span></div>
+      <p class="muted small">Uma data cadastrada aqui desabilita o calendário e o motor de disponibilidade para toda a barbearia.</p>
+      <div class="form-grid">
+        <div class="field">
+          <label for="feriado-data">Data</label>
+          <input id="feriado-data" type="date">
+        </div>
+        <div class="field">
+          <label for="feriado-descricao">Descrição</label>
+          <input id="feriado-descricao" type="text" maxlength="80" placeholder="Ex.: Natal">
+        </div>
+      </div>
+      <p id="feriado-erro" class="erro" role="alert"></p>
+      <button id="btn-add-feriado" class="btn btn-outline" type="button">Adicionar feriado</button>
+      <div id="lista-feriados" class="stack" style="margin-top:12px"></div>
+    </section>
+
+    <section class="card danger-card" style="margin-top:14px">
+      <h2>Restaurar demonstração</h2>
+      <p class="muted small">Apaga todos os dados salvos neste navegador e recria o seed original, incluindo clientes, equipe e os 2 agendamentos do próximo dia útil.</p>
+      <button id="btn-reset-demo" class="btn btn-danger" type="button">Restaurar dados de demonstração</button>
+      <div id="reset-confirm" class="inline-confirm" hidden>
+        <p>Tem certeza? Esta ação apaga os dados atuais e não pode ser desfeita.</p>
+        <div class="row-actions">
+          <button id="btn-confirmar-reset" class="btn btn-danger btn-sm" type="button">Sim, restaurar</button>
+          <button id="btn-cancelar-reset" class="btn btn-ghost btn-sm" type="button">Cancelar</button>
+        </div>
+      </div>
+    </section>
+    </div>
+  </section>
+</main>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<!--
+  IDs dinâmicos gerados pelo render (o contrato usa <n> como índice exibido):
+  servico-1 … servico-5, barbeiro-1 … barbeiro-4,
+  agendamento-<n>, btn-reagendar-<n>, btn-cancelar-<n>,
+  btn-concluir-<n>, btn-faltou-<n>.
+-->
+
+<script>
+(function () {
+  'use strict';
+
+  var STORAGE_KEY = 'barberprime.demo.v1';
+  var DIAS = ['domingo', 'segunda-feira', 'terça-feira', 'quarta-feira', 'quinta-feira', 'sexta-feira', 'sábado'];
+  var DIAS_CURTOS = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
+  var MESES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+  var STATUS_LABEL = { agendado: 'Agendado', concluido: 'Concluído', cancelado: 'Cancelado', faltou: 'Faltou' };
+  var SERVICO_ID = { 1: 'servico-1', 2: 'servico-2', 3: 'servico-3', 4: 'servico-4', 5: 'servico-5' };
+  var BARBEIRO_ID = { 1: 'barbeiro-1', 2: 'barbeiro-2', 3: 'barbeiro-3', 4: 'barbeiro-4' };
+
+  var DB = null;
+  var ui = null;
+
+  function $(id) { return document.getElementById(id); }
+  function pad(n) { return String(n).padStart(2, '0'); }
+  function esc(value) {
+    return String(value == null ? '' : value).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function icon(name, cls) {
+    return '<svg class="icon ' + (cls || '') + '" aria-hidden="true"><use href="#i-' + name + '"></use></svg>';
+  }
+  function initials(name) {
+    var parts = String(name || '').trim().split(/\s+/).filter(Boolean);
+    if (!parts.length) return '?';
+    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  }
+  function avatar(name, cls) {
+    return '<span class="avatar ' + (cls || '') + '" aria-hidden="true">' + esc(initials(name)) + '</span>';
+  }
+  function isoNow() { return new Date().toISOString(); }
+  function nextId(list) {
+    return list.reduce(function (max, item) { return Math.max(max, Number(item.id) || 0); }, 0) + 1;
+  }
+
+  /* ---------- Datas e fuso fixo America/Sao_Paulo (UTC-3) ---------- */
+  function todayStr() {
+    var d = new Date(Date.now() - 3 * 3600000);
+    return d.getUTCFullYear() + '-' + pad(d.getUTCMonth() + 1) + '-' + pad(d.getUTCDate());
+  }
+  function nowMinutes() {
+    var d = new Date(Date.now() - 3 * 3600000);
+    return d.getUTCHours() * 60 + d.getUTCMinutes();
+  }
+  function parseYmd(s) {
+    var p = String(s).split('-').map(Number);
+    return new Date(Date.UTC(p[0], p[1] - 1, p[2], 12, 0, 0));
+  }
+  function ymdOf(d) {
+    return d.getUTCFullYear() + '-' + pad(d.getUTCMonth() + 1) + '-' + pad(d.getUTCDate());
+  }
+  function addDays(s, n) {
+    var d = parseYmd(s);
+    d.setUTCDate(d.getUTCDate() + n);
+    return ymdOf(d);
+  }
+  function weekdayOf(s) { return parseYmd(s).getUTCDay(); }
+  function fmtLong(s) {
+    var d = parseYmd(s);
+    return DIAS[d.getUTCDay()] + ', ' + d.getUTCDate() + ' de ' + MESES[d.getUTCMonth()];
+  }
+  function fmtFull(s) {
+    var d = parseYmd(s);
+    return DIAS[d.getUTCDay()] + ', ' + pad(d.getUTCDate()) + '/' + pad(d.getUTCMonth() + 1) + '/' + d.getUTCFullYear();
+  }
+  function fmtShort(s) {
+    var d = parseYmd(s);
+    return pad(d.getUTCDate()) + '/' + pad(d.getUTCMonth() + 1);
+  }
+  function fmtRange(a, b) {
+    var da = parseYmd(a);
+    var db = parseYmd(b);
+    var ma = da.getUTCMonth();
+    var mb = db.getUTCMonth();
+    var ya = da.getUTCFullYear();
+    var yb = db.getUTCFullYear();
+    if (ma === mb && ya === yb) return da.getUTCDate() + '–' + db.getUTCDate() + ' de ' + MESES[ma];
+    if (ya === yb) return da.getUTCDate() + ' ' + MESES[ma].slice(0, 3) + ' – ' + db.getUTCDate() + ' ' + MESES[mb].slice(0, 3);
+    return da.getUTCDate() + ' ' + MESES[ma].slice(0, 3) + ' ' + ya + ' – ' + db.getUTCDate() + ' ' + MESES[mb].slice(0, 3) + ' ' + yb;
+  }
+  function weekStartOf(s) {
+    var wd = weekdayOf(s);
+    return addDays(s, -((wd + 6) % 7));
+  }
+  function hmToMin(hm) {
+    var p = String(hm || '00:00').split(':').map(Number);
+    return (p[0] || 0) * 60 + (p[1] || 0);
+  }
+  function minToHm(m) { return pad(Math.floor(m / 60)) + ':' + pad(m % 60); }
+  function money(cents) {
+    var v = (Number(cents) || 0) / 100;
+    return 'R$ ' + v.toFixed(2).replace('.', ',');
+  }
+  function maskPhone(value) {
+    var d = String(value || '').replace(/\D/g, '');
+    if (d.length === 11) return '(' + d.slice(0, 2) + ') ' + d.slice(2, 7) + '-' + d.slice(7);
+    if (d.length === 10) return '(' + d.slice(0, 2) + ') ' + d.slice(2, 6) + '-' + d.slice(6);
+    if (d.length > 2) return '(' + d.slice(0, 2) + ') ' + d.slice(2);
+    return d;
+  }
+  function formatPhoneInput(value) {
+    var d = String(value || '').replace(/\D/g, '').slice(0, 11);
+    if (d.length <= 2) return d;
+    var out = '(' + d.slice(0, 2) + ') ';
+    var rest = d.slice(2);
+    if (rest.length <= 4) return out + rest;
+    if (rest.length <= 8) return out + rest.slice(0, 4) + '-' + rest.slice(4);
+    return out + rest.slice(0, 5) + '-' + rest.slice(5, 9);
+  }
+
+  /* ---------- Seed ---------- */
+  function seedState() {
+    var hoje = todayStr();
+    var prox = hoje;
+    do { prox = addDays(prox, 1); } while (weekdayOf(prox) === 0);
+    var agora = isoNow();
+    var barbeiros = [
+      { id: 1, nome: 'Rafael Costa', apelido: 'rafael', login: 'barbeiro1', especialidades: ['Degradê', 'Navalhado', 'Clássico'], bio: 'Acabamento preciso, visagismo e cuidado em cada detalhe.', ativo: true },
+      { id: 2, nome: 'Diego Martins', apelido: 'diego', login: 'barbeiro2', especialidades: ['Barba', 'Toalha quente', 'Clássico'], bio: 'Especialista em barba e no ritual de toalha quente.', ativo: true },
+      { id: 3, nome: 'Lucas Almeida', apelido: 'lucas', login: 'barbeiro3', especialidades: ['Infantil', 'Social', 'Degradê'], bio: 'Cortes sociais e atendimento para toda a família.', ativo: true },
+      { id: 4, nome: 'Bruno Silva', apelido: 'bruno', login: 'barbeiro4', especialidades: ['Pigmentação', 'Platinado', 'Sobrancelha'], bio: 'Coloração, pigmentação e detalhes que marcam.', ativo: true }
+    ];
+    var jornadas = [];
+    barbeiros.forEach(function (b) {
+      for (var dia = 0; dia <= 6; dia += 1) {
+        jornadas.push({
+          barbeiroId: b.id,
+          diaSemana: dia,
+          ativo: dia !== 0,
+          inicio: '09:00',
+          fim: '18:00',
+          intervaloInicio: '12:00',
+          intervaloFim: '13:00'
+        });
+      }
+    });
+    return {
+      versao: 1,
+      criadoEm: agora,
+      atualizadoEm: agora,
+      config: {
+        nomeBarbearia: 'Barber Prime',
+        endereco: 'Rua das Navalhas, 128 — Vila Madalena, São Paulo/SP',
+        telefoneContato: '(11) 4002-8922',
+        horarioFuncionamento: 'Segunda a sábado, 09:00 às 19:00',
+        antecedenciaMinMin: 30,
+        antecedenciaMaxDias: 365,
+        fuso: 'America/Sao_Paulo'
+      },
+      barbeiros: barbeiros,
+      servicos: [
+        { id: 1, nome: 'Corte', descricao: 'Corte personalizado na máquina e tesoura.', precoCentavos: 5000, duracaoMin: 45, ativo: true },
+        { id: 2, nome: 'Barba', descricao: 'Modelagem, toalha quente e hidratação.', precoCentavos: 3500, duracaoMin: 30, ativo: true },
+        { id: 3, nome: 'Corte + Barba', descricao: 'Corte completo com barba alinhada.', precoCentavos: 8000, duracaoMin: 60, ativo: true },
+        { id: 4, nome: 'Sobrancelha', descricao: 'Design e acabamento na navalha.', precoCentavos: 2000, duracaoMin: 15, ativo: true },
+        { id: 5, nome: 'Pigmentação', descricao: 'Pigmentação capilar e correção de falhas.', precoCentavos: 4500, duracaoMin: 30, ativo: true }
+      ],
+      jornadas: jornadas,
+      clientes: [
+        { id: 1, nome: 'Ana', sobrenome: 'Souza', telefone: '11987650001', pin: '1234', criadoEm: agora },
+        { id: 2, nome: 'Carlos', sobrenome: 'Lima', telefone: '11987650002', pin: '1234', criadoEm: agora },
+        { id: 3, nome: 'Marina', sobrenome: 'Alves', telefone: '11987650003', pin: '1234', criadoEm: agora },
+        { id: 4, nome: 'Pedro', sobrenome: 'Santos', telefone: '11987650004', pin: '1234', criadoEm: agora }
+      ],
+      agendamentos: [
+        { id: 1, clienteId: 1, barbeiroId: 1, servicoId: 1, data: prox, hora: '10:00', duracaoMin: 45, precoCentavos: 5000, status: 'agendado', criadoEm: agora, atualizadoEm: agora },
+        { id: 2, clienteId: 2, barbeiroId: 1, servicoId: 3, data: prox, hora: '11:00', duracaoMin: 60, precoCentavos: 8000, status: 'agendado', criadoEm: agora, atualizadoEm: agora }
+      ],
+      bloqueios: [],
+      feriados: [],
+      auditoria: [],
+      sessao: null
+    };
+  }
+
+  function normalizeDB(db) {
+    if (!db || typeof db !== 'object' || db.versao !== 1) return null;
+    if (!db.config || !Array.isArray(db.barbeiros) || !Array.isArray(db.servicos) || !Array.isArray(db.clientes) || !Array.isArray(db.agendamentos) || !Array.isArray(db.jornadas)) return null;
+    if (!Array.isArray(db.bloqueios)) db.bloqueios = [];
+    if (!Array.isArray(db.feriados)) db.feriados = [];
+    if (!Array.isArray(db.auditoria)) db.auditoria = [];
+    if (db.sessao) {
+      if (db.sessao.papel === 'cliente' && !db.clientes.some(function (c) { return c.id === db.sessao.clienteId; })) db.sessao = null;
+      else if (db.sessao.papel === 'barbeiro' && !db.barbeiros.some(function (b) { return b.id === db.sessao.barbeiroId; })) db.sessao = null;
+      else if (db.sessao.papel === 'admin' && db.sessao.login !== 'admin') db.sessao = null;
+      else if (['cliente', 'barbeiro', 'admin'].indexOf(db.sessao.papel) === -1) db.sessao = null;
+    }
+    return db;
+  }
+
+  function loadDB() {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        var parsed = normalizeDB(JSON.parse(raw));
+        if (parsed) return parsed;
+      }
+    } catch (err) { /* dados inválidos: recria o seed */ }
+    return seedState();
+  }
+
+  function saveDB() {
+    try {
+      DB.atualizadoEm = isoNow();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(DB));
+    } catch (err) {
+      toast('Não foi possível salvar neste navegador. A sessão continua apenas em memória.', 'erro');
+    }
+  }
+
+  /* ---------- Estado de interface ---------- */
+  function freshUI() {
+    return {
+      view: 'inicio',
+      meusFiltro: 'proximos',
+      barberScope: 'hoje',
+      rescheduleId: null,
+      rescheduleDate: null,
+      pendingCancelId: null,
+      manualOpen: false,
+      bloqueioOpen: false,
+      lastConfirmation: null,
+      booking: { servicoId: null, barbeiroId: null, data: null, hora: null },
+      calWeekStart: weekStartOf(todayStr()),
+      afterLogin: null,
+      toastTimer: null
+    };
+  }
+
+  /* ---------- Consultas ---------- */
+  function getServico(id) {
+    return DB.servicos.find(function (s) { return s.id === Number(id); }) || null;
+  }
+  function getBarbeiro(id) {
+    return DB.barbeiros.find(function (b) { return b.id === Number(id); }) || null;
+  }
+  function getCliente(id) {
+    return DB.clientes.find(function (c) { return c.id === Number(id); }) || null;
+  }
+  function getJornada(barbeiroId, diaSemana) {
+    return DB.jornadas.find(function (j) { return j.barbeiroId === barbeiroId && j.diaSemana === diaSemana; }) || null;
+  }
+  function maxDate() { return addDays(todayStr(), DB.config.antecedenciaMaxDias); }
+  function isHoliday(data) {
+    return DB.feriados.some(function (f) { return f.data === data; });
+  }
+  function isClosed(data) {
+    return weekdayOf(data) === 0 || isHoliday(data);
+  }
+  function dateStatus(data) {
+    if (!data) return 'vazia';
+    if (data < todayStr()) return 'passado';
+    if (data > maxDate()) return 'max';
+    if (weekdayOf(data) === 0) return 'domingo';
+    if (isHoliday(data)) return 'feriado';
+    return 'ok';
+  }
+  function nextOpenDay(from) {
+    var d = addDays(from, 1);
+    var guard = 0;
+    while (isClosed(d) && guard < 370) { d = addDays(d, 1); guard += 1; }
+    return d;
+  }
+  function overlaps(a, b, c, d) { return a < d && c < b; }
+  function activeBlocksFor(barbeiroId, data) {
+    return DB.bloqueios.filter(function (b) {
+      return b.data === data && (b.barbeiroId === barbeiroId || b.barbeiroId === null || typeof b.barbeiroId === 'undefined');
+    });
+  }
+  function hasAppointmentConflict(barbeiroId, data, startMin, endMin, excludeId) {
+    var hoje = todayStr();
+    var agora = nowMinutes();
+    return DB.agendamentos.some(function (a) {
+      if (a.barbeiroId !== barbeiroId || a.data !== data || a.id === excludeId) return false;
+      var ocupa = a.status === 'agendado';
+      /* Anomalia possível no demo: status final lançado antes do horário ainda
+         não pode liberar a vaga para outra reserva. Depois do horário, libera. */
+      if (!ocupa && (a.status === 'concluido' || a.status === 'faltou')) {
+        ocupa = a.data > hoje || (a.data === hoje && hmToMin(a.hora) > agora);
+      }
+      if (!ocupa) return false;
+      return overlaps(startMin, endMin, hmToMin(a.hora), hmToMin(a.hora) + Number(a.duracaoMin));
+    });
+  }
+  function hasBlockConflict(barbeiroId, data, startMin, endMin) {
+    return activeBlocksFor(barbeiroId, data).some(function (b) {
+      return overlaps(startMin, endMin, hmToMin(b.horaInicio), hmToMin(b.horaFim));
+    });
+  }
+
+  function slotsFor(servico, data, barbeiroId, excludeId) {
+    if (!servico || !data) return [];
+    if (dateStatus(data) !== 'ok') return [];
+    var dur = Number(servico.duracaoMin) || 0;
+    if (dur <= 0) return [];
+    var ids;
+    if (barbeiroId) {
+      var only = getBarbeiro(barbeiroId);
+      if (!only || !only.ativo) return [];
+      ids = [only.id];
+    } else {
+      ids = DB.barbeiros.filter(function (b) { return b.ativo; }).map(function (b) { return b.id; });
+    }
+    var now = nowMinutes();
+    var hoje = todayStr();
+    var minAdvance = Number(DB.config.antecedenciaMinMin) || 0;
+    var resultado = [];
+    ids.forEach(function (bid) {
+      var j = getJornada(bid, weekdayOf(data));
+      if (!j || !j.ativo) return;
+      var inicio = Math.max(hmToMin(j.inicio), 9 * 60);
+      var fim = Math.min(hmToMin(j.fim), 19 * 60);
+      var intIni = hmToMin(j.intervaloInicio || '00:00');
+      var intFim = hmToMin(j.intervaloFim || '00:00');
+      var blocos = activeBlocksFor(bid, data);
+      for (var t = inicio; t + dur <= fim; t += 15) {
+        if (intIni < intFim && overlaps(t, t + dur, intIni, intFim)) continue;
+        if (data === hoje && t < now + minAdvance) continue;
+        if (hasAppointmentConflict(bid, data, t, t + dur, excludeId)) continue;
+        var bloqueado = blocos.some(function (b) {
+          return overlaps(t, t + dur, hmToMin(b.horaInicio), hmToMin(b.horaFim));
+        });
+        if (bloqueado) continue;
+        var barbeiro = getBarbeiro(bid);
+        resultado.push({
+          hora: minToHm(t),
+          start: t,
+          end: t + dur,
+          barbeiroId: bid,
+          barbeiroNome: barbeiro ? barbeiro.nome : ('Barbeiro ' + bid)
+        });
+      }
+    });
+    resultado.sort(function (a, b) { return a.start - b.start || a.barbeiroId - b.barbeiroId; });
+    return resultado;
+  }
+
+  function groupSlots(slots) {
+    var map = {};
+    var order = [];
+    slots.forEach(function (s) {
+      if (!map[s.hora]) {
+        map[s.hora] = { hora: s.hora, barbeiros: [] };
+        order.push(s.hora);
+      }
+      map[s.hora].barbeiros.push(s.barbeiroNome);
+    });
+    order.sort();
+    return order.map(function (h) { return map[h]; });
+  }
+
+  function nextDateWithSlot(servico, barbeiroId, from, excludeId) {
+    if (!servico) return null;
+    var d = from < todayStr() ? todayStr() : from;
+    var limite = maxDate();
+    var maxDias = Number(DB.config.antecedenciaMaxDias) || 365;
+    for (var i = 0; i <= maxDias; i += 1) {
+      if (d > limite) break;
+      if (dateStatus(d) === 'ok') {
+        var slots = slotsFor(servico, d, barbeiroId, excludeId);
+        if (slots.length) return { data: d, slots: slots };
+      }
+      d = addDays(d, 1);
+    }
+    return null;
+  }
+
+  /* ---------- Interface: textos e mensagens ---------- */
+  function setText(id, text) {
+    var el = $(id);
+    if (el) el.textContent = text == null ? '' : String(text);
+  }
+  function setErro(id, msg) {
+    var el = $(id);
+    if (el) el.textContent = msg || '';
+  }
+  function limparErrosAuth() {
+    setErro('login-erro', '');
+    setErro('cadastro-erro', '');
+    setErro('login-staff-erro', '');
+  }
+  function limparEstadoSessaoUI() {
+    ui.lastConfirmation = null;
+    ui.rescheduleId = null;
+    ui.rescheduleDate = null;
+    ui.pendingCancelId = null;
+    ui.manualOpen = false;
+    ui.bloqueioOpen = false;
+  }
+  function toast(msg, tipo) {
+    var el = $('toast');
+    if (!el) return;
+    el.textContent = msg;
+    el.className = 'toast show' + (tipo === 'erro' ? ' erro' : '');
+    if (ui && ui.toastTimer) clearTimeout(ui.toastTimer);
+    var timer = setTimeout(function () { el.className = 'toast'; }, tipo === 'erro' ? 5200 : 3800);
+    if (ui) ui.toastTimer = timer;
+  }
+
+  function sessionLabel() {
+    var s = DB.sessao;
+    if (!s) return 'Visitante';
+    if (s.papel === 'cliente') {
+      var c = getCliente(s.clienteId);
+      return c ? (c.nome + ' ' + c.sobrenome + ' · Cliente') : 'Cliente';
+    }
+    if (s.papel === 'barbeiro') {
+      var b = getBarbeiro(s.barbeiroId);
+      return b ? (b.nome + ' · Barbeiro') : 'Barbeiro';
+    }
+    return 'Admin · Administrador';
+  }
+
+  function canAccess(view) {
+    if (view === 'meus') return !!(DB.sessao && DB.sessao.papel === 'cliente');
+    if (view === 'barbeiro') return !!(DB.sessao && DB.sessao.papel === 'barbeiro');
+    if (view === 'admin') return !!(DB.sessao && DB.sessao.papel === 'admin');
+    return true;
+  }
+  function exigirAdmin() {
+    if (DB.sessao && DB.sessao.papel === 'admin') return true;
+    toast('Acesso restrito ao administrador.', 'erro');
+    return false;
+  }
+
+  function renderChrome() {
+    setText('usuario-atual', sessionLabel());
+    var atual = $('usuario-atual');
+    if (atual) atual.title = sessionLabel();
+    var mapa = { inicio: 'nav-inicio', agendar: 'nav-agendar', meus: 'nav-meus', entrar: 'nav-entrar', barbeiro: 'nav-barbeiro', admin: 'nav-admin' };
+    Object.keys(mapa).forEach(function (view) {
+      var btn = $(mapa[view]);
+      if (!btn) return;
+      if (view === ui.view) btn.setAttribute('aria-current', 'page');
+      else btn.removeAttribute('aria-current');
+    });
+  }
+
+  function goView(view, options) {
+    options = options || {};
+    var denied = !canAccess(view);
+    var target = denied ? 'entrar' : view;
+    ui.view = target;
+    ui.pendingCancelId = null;
+    Array.prototype.forEach.call(document.querySelectorAll('.view'), function (section) {
+      section.hidden = section.id !== 'view-' + target;
+    });
+    var titles = {
+      inicio: 'Início',
+      agendar: 'Agendar',
+      meus: 'Meus agendamentos',
+      entrar: 'Entrar',
+      barbeiro: 'Painel do barbeiro',
+      admin: 'Painel administrativo'
+    };
+    setText('titulo-pagina', titles[target] || '');
+    renderChrome();
+    renderView();
+    if (denied) {
+      var msg = view === 'meus'
+        ? 'Entre como cliente para ver seus agendamentos.'
+        : view === 'barbeiro'
+          ? 'Entre como barbeiro para abrir o painel da equipe.'
+          : 'Entre como administrador para abrir o painel administrativo.';
+      setErro('login-erro', msg);
+      toast(msg, 'erro');
+    }
+    if (options.focus !== false) {
+      var title = $('titulo-pagina');
+      if (title) {
+        try { title.focus({ preventScroll: true }); } catch (err) { try { title.focus(); } catch (e2) {} }
+      }
+    }
+    if (options.scroll !== false) {
+      try { window.scrollTo({ top: 0, behavior: 'auto' }); } catch (err) { window.scrollTo(0, 0); }
+    }
+  }
+
+  function renderView() {
+    if (ui.view === 'inicio') renderHome();
+    else if (ui.view === 'agendar') renderBooking();
+    else if (ui.view === 'meus') renderMeus();
+    else if (ui.view === 'entrar') renderEntrar();
+    else if (ui.view === 'barbeiro') renderBarber();
+    else if (ui.view === 'admin') renderAdmin();
+  }
+
+  /* ---------- Início ---------- */
+  function renderHome() {
+    var ativos = DB.barbeiros.filter(function (b) { return b.ativo; });
+    $('home-barbeiros').innerHTML = ativos.length ? ativos.map(function (b) {
+      return '<article class="barber-card">' +
+        avatar(b.nome) +
+        '<h3>' + esc(b.nome) + '</h3>' +
+        '<span class="handle">@' + esc(b.apelido || b.login || ('barbeiro' + b.id)) + '</span>' +
+        '<p class="bio">' + esc(b.bio || '') + '</p>' +
+        '<div class="tags">' + (b.especialidades || []).map(function (e) { return '<span class="tag">' + esc(e) + '</span>'; }).join('') + '</div>' +
+        '</article>';
+    }).join('') : '<p class="empty">Nenhum barbeiro ativo no momento.</p>';
+
+    var servicos = DB.servicos.filter(function (s) { return s.ativo; });
+    $('home-servicos').innerHTML = servicos.length ? servicos.map(function (s) {
+      return '<button type="button" class="service-row" data-action="home-service" data-id="' + s.id + '">' +
+        '<span class="s-main"><strong>' + esc(s.nome) + '</strong><small>' + esc(s.descricao || '') + '</small></span>' +
+        '<span class="s-side"><span class="s-price">' + money(s.precoCentavos) + '</span>' +
+        '<span class="s-dur">' + icon('clock', 'icon-sm') + s.duracaoMin + ' min</span></span>' +
+        '</button>';
+    }).join('') : '<p class="empty">Nenhum serviço ativo no momento.</p>';
+
+    setText('home-horario', DB.config.horarioFuncionamento);
+  }
+
+  /* ---------- Agendar ---------- */
+  function resetBooking() {
+    ui.booking = { servicoId: null, barbeiroId: null, data: null, hora: null };
+    ui.lastConfirmation = null;
+  }
+
+  function renderBooking() {
+    var b = ui.booking;
+    var servicos = DB.servicos.filter(function (s) { return s.ativo; });
+    if (b.servicoId && !servicos.some(function (s) { return s.id === b.servicoId; })) {
+      b.servicoId = null; b.hora = null;
+    }
+    var barbeiros = DB.barbeiros.filter(function (x) { return x.ativo; });
+    if (b.barbeiroId && !barbeiros.some(function (x) { return x.id === b.barbeiroId; })) {
+      b.barbeiroId = null; b.hora = null;
+    }
+
+    $('lista-servicos').innerHTML = servicos.map(function (s) {
+      var sel = b.servicoId === s.id;
+      var id = SERVICO_ID[s.id] || ('servico-' + s.id);
+      return '<button type="button" id="' + id + '" class="choice" data-action="pick-service" data-id="' + s.id + '" aria-pressed="' + sel + '">' +
+        '<span class="choice-main"><span class="choice-title">' + esc(s.nome) + '</span><span class="choice-desc">' + esc(s.descricao || '') + '</span></span>' +
+        '<span class="choice-price">' + money(s.precoCentavos) + '<small>' + s.duracaoMin + ' min</small></span>' +
+        '</button>';
+    }).join('') || '<p class="empty">Nenhum serviço ativo. Fale com a recepção.</p>';
+
+    var anySelected = !b.barbeiroId;
+    var barbeiroHtml = '<button type="button" id="barbeiro-qualquer" class="choice choice-barber" data-action="pick-barber" data-id="" aria-pressed="' + anySelected + '">' +
+      '<span class="avatar avatar-sm avatar-generic" aria-hidden="true">' + icon('sparkle', 'icon-sm') + '</span>' +
+      '<span class="choice-main"><span class="choice-title">Qualquer profissional</span><span class="choice-desc">O primeiro disponível no horário escolhido</span></span>' +
+      '</button>';
+    barbeiroHtml += barbeiros.map(function (x) {
+      var sel = b.barbeiroId === x.id;
+      var id = BARBEIRO_ID[x.id] || ('barbeiro-' + x.id);
+      return '<button type="button" id="' + id + '" class="choice choice-barber" data-action="pick-barber" data-id="' + x.id + '" aria-pressed="' + sel + '">' +
+        avatar(x.nome, 'avatar-sm') +
+        '<span class="choice-main"><span class="choice-title">' + esc(x.nome) + '</span><span class="choice-desc">' + esc((x.especialidades || []).join(' · ')) + '</span></span>' +
+        '</button>';
+    }).join('');
+    $('lista-barbeiros').innerHTML = barbeiroHtml;
+
+    renderCalendar();
+    renderSlots();
+
+    var servico = getServico(b.servicoId);
+    var barbeiro = b.barbeiroId ? getBarbeiro(b.barbeiroId) : null;
+    setText('resumo-servico', servico ? (servico.nome + ' · ' + money(servico.precoCentavos) + ' · ' + servico.duracaoMin + ' min') : 'Nenhum serviço selecionado.');
+    setText('resumo-barbeiro', barbeiro ? barbeiro.nome : 'Qualquer profissional disponível.');
+    setText('data-selecionada', b.data ? fmtLong(b.data) + (isHoliday(b.data) ? ' · feriado (fechado)' : '') : 'Nenhuma data selecionada.');
+    setText('resumo-horario', (b.data && b.hora) ? (fmtFull(b.data) + ' às ' + b.hora) : (b.data ? 'Selecione um horário.' : 'Escolha serviço e data para ver os horários.'));
+
+    $('btn-proxima-data').disabled = !servico;
+    $('btn-proximo-horario').disabled = !servico;
+    $('btn-confirmar').disabled = !(servico && b.data && b.hora);
+
+    var box = $('confirmacao');
+    if (ui.lastConfirmation) {
+      var c = ui.lastConfirmation;
+      box.hidden = false;
+      box.innerHTML =
+        '<div class="check-badge">' + icon('check') + '</div>' +
+        '<h3>Agendamento confirmado</h3>' +
+        '<p><strong>' + esc(c.servico) + '</strong> com ' + esc(c.barbeiro) + '<br>' +
+        esc(fmtLong(c.data)) + ' às ' + esc(c.hora) + ' · ' + c.duracaoMin + ' min · ' + money(c.precoCentavos) + '</p>' +
+        '<div class="confirm-actions">' +
+        '<button type="button" class="btn btn-gold btn-sm" data-action="go-meus">Ver meus agendamentos</button>' +
+        '<button type="button" class="btn btn-ghost btn-sm" data-action="new-booking">Novo agendamento</button>' +
+        '</div>';
+    } else {
+      box.hidden = true;
+      box.innerHTML = '';
+    }
+  }
+
+  function renderCalendar() {
+    var b = ui.booking;
+    var start = ui.calWeekStart;
+    var fim = addDays(start, 6);
+    setText('cal-titulo', fmtRange(start, fim));
+    var servico = getServico(b.servicoId);
+    var hoje = todayStr();
+    var html = '';
+    for (var i = 0; i < 7; i += 1) {
+      var data = addDays(start, i);
+      var wd = weekdayOf(data);
+      var status = dateStatus(data);
+      var fechado = isClosed(data);
+      var disabled = status !== 'ok';
+      var hasVaga = !!(servico && !disabled && slotsFor(servico, data, b.barbeiroId).length);
+      var selected = b.data === data;
+      var label = DIAS_CURTOS[wd] + ', ' + fmtShort(data) + (disabled ? (status === 'domingo' ? ' — fechado' : status === 'feriado' ? ' — feriado' : ' — indisponível') : '');
+      html += '<button type="button" class="cal-day' + (selected ? ' selected' : '') + (data === hoje ? ' today' : '') + '" data-action="pick-date" data-date="' + data + '" aria-pressed="' + selected + '" aria-label="' + esc(label) + '"' + (disabled ? ' disabled' : '') + '>' +
+        '<span class="wd">' + DIAS_CURTOS[wd] + '</span>' +
+        '<span class="num">' + parseYmd(data).getUTCDate() + '</span>' +
+        (fechado ? '<span class="closed">' + (status === 'feriado' ? 'feriado' : 'fech.') + '</span>' : (hasVaga ? '<span class="dot" aria-hidden="true"></span>' : '')) +
+        '</button>';
+    }
+    $('calendario').innerHTML = html;
+  }
+
+  function renderSlots() {
+    var b = ui.booking;
+    var box = $('horarios');
+    var servico = getServico(b.servicoId);
+    if (!servico) {
+      box.innerHTML = '<p class="empty">Escolha um serviço para ver os horários.</p>';
+      return;
+    }
+    if (!b.data) {
+      box.innerHTML = '<p class="empty">Escolha uma data no calendário.</p>';
+      return;
+    }
+    var slots = slotsFor(servico, b.data, b.barbeiroId);
+    var horas = slots.map(function (s) { return s.hora; });
+    if (b.hora && horas.indexOf(b.hora) === -1) b.hora = null;
+    if (!slots.length) {
+      box.innerHTML = '<p class="empty">Nenhum horário livre nesta data. Use “Próxima data com vaga”.</p>';
+      return;
+    }
+    var grupos = groupSlots(slots);
+    box.innerHTML = grupos.map(function (g) {
+      var sel = b.hora === g.hora;
+      var label = g.barbeiros.length > 1 ? (g.barbeiros.length + ' profissionais') : g.barbeiros[0];
+      return '<button type="button" class="slot" data-action="pick-slot" data-hora="' + g.hora + '" aria-pressed="' + sel + '" aria-label="' + esc(g.hora + ', ' + label) + '">' +
+        '<strong>' + g.hora + '</strong><small>' + esc(label) + '</small></button>';
+    }).join('');
+  }
+
+  function escolherProximaData() {
+    var b = ui.booking;
+    var servico = getServico(b.servicoId);
+    if (!servico) {
+      setErro('erro-booking', 'Escolha um serviço antes de buscar a próxima data.');
+      return;
+    }
+    var from = b.data ? addDays(b.data, 1) : todayStr();
+    if (from < todayStr()) from = todayStr();
+    var hit = nextDateWithSlot(servico, b.barbeiroId, from);
+    if (!hit) {
+      setErro('erro-booking', 'Não encontrei vaga nos próximos ' + DB.config.antecedenciaMaxDias + ' dias para este serviço.');
+      return;
+    }
+    b.data = hit.data;
+    b.hora = null;
+    ui.calWeekStart = weekStartOf(hit.data);
+    setErro('erro-booking', '');
+    renderBooking();
+    toast('Próxima data com vaga: ' + fmtLong(hit.data) + '.', 'ok');
+  }
+
+  function escolherProximoHorario() {
+    var b = ui.booking;
+    var servico = getServico(b.servicoId);
+    if (!servico) {
+      setErro('erro-booking', 'Escolha um serviço antes de buscar um horário.');
+      return;
+    }
+    var slots = b.data ? slotsFor(servico, b.data, b.barbeiroId) : [];
+    if (!slots.length) {
+      var from = b.data ? addDays(b.data, 1) : todayStr();
+      var hit = nextDateWithSlot(servico, b.barbeiroId, from);
+      if (!hit) {
+        setErro('erro-booking', 'Não encontrei horários livres no período permitido.');
+        return;
+      }
+      b.data = hit.data;
+      ui.calWeekStart = weekStartOf(hit.data);
+      slots = hit.slots;
+    }
+    var primeiro = slots[0];
+    b.hora = primeiro.hora;
+    setErro('erro-booking', '');
+    renderBooking();
+    toast('Horário selecionado: ' + primeiro.hora + ' em ' + fmtShort(b.data) + '.', 'ok');
+  }
+
+  function confirmarAgendamento() {
+    var b = ui.booking;
+    setErro('erro-booking', '');
+    var servico = getServico(b.servicoId);
+    if (!servico) { setErro('erro-booking', 'Escolha um serviço.'); return; }
+    if (!b.data) { setErro('erro-booking', 'Escolha uma data.'); return; }
+    var st = dateStatus(b.data);
+    if (st !== 'ok') {
+      setErro('erro-booking', st === 'passado' ? 'Essa data já passou.' : st === 'domingo' ? 'Domingo a barbearia está fechada.' : st === 'feriado' ? 'Essa data é feriado e a barbearia está fechada.' : 'Escolha uma data dentro do período permitido.');
+      return;
+    }
+    if (!b.hora) { setErro('erro-booking', 'Escolha um horário.'); return; }
+    if (!DB.sessao || DB.sessao.papel !== 'cliente') {
+      ui.afterLogin = 'agendar';
+      goView('entrar');
+      setErro('login-erro', 'Entre ou crie seu acesso para confirmar o horário escolhido.');
+      toast('Entre como cliente para confirmar o agendamento.', 'info');
+      return;
+    }
+    var slots = slotsFor(servico, b.data, b.barbeiroId);
+    var escolhido = null;
+    for (var i = 0; i < slots.length; i += 1) {
+      if (slots[i].hora === b.hora) { escolhido = slots[i]; break; }
+    }
+    if (!escolhido) {
+      renderBooking();
+      setErro('erro-booking', 'Esse horário não está mais disponível. Escolha outro.');
+      toast('O horário acabou de ser ocupado. Escolha outro.', 'erro');
+      return;
+    }
+    var agora = isoNow();
+    var novo = {
+      id: nextId(DB.agendamentos),
+      clienteId: DB.sessao.clienteId,
+      barbeiroId: escolhido.barbeiroId,
+      servicoId: servico.id,
+      data: b.data,
+      hora: escolhido.hora,
+      duracaoMin: servico.duracaoMin,
+      precoCentavos: servico.precoCentavos,
+      status: 'agendado',
+      criadoEm: agora,
+      atualizadoEm: agora
+    };
+    DB.agendamentos.push(novo);
+    saveDB();
+    resetBooking();
+    ui.lastConfirmation = {
+      servico: servico.nome,
+      barbeiro: escolhido.barbeiroNome,
+      data: novo.data,
+      hora: novo.hora,
+      duracaoMin: novo.duracaoMin,
+      precoCentavos: novo.precoCentavos
+    };
+    renderBooking();
+    toast('Agendamento confirmado.', 'ok');
+    var box = $('confirmacao');
+    if (box) {
+      try { box.scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch (err) { try { box.scrollIntoView(); } catch (e2) {} }
+    }
+  }
+
+  /* ---------- Meus agendamentos ---------- */
+  function renderMeus() {
+    var sess = DB.sessao;
+    if (!sess || sess.papel !== 'cliente') return;
+    var cliente = getCliente(sess.clienteId);
+    if (!cliente) return;
+    var hoje = todayStr();
+    var todos = DB.agendamentos.filter(function (a) { return a.clienteId === cliente.id; });
+    var proximos = todos.filter(function (a) { return a.status === 'agendado' && a.data >= hoje; })
+      .sort(function (a, b) { return (a.data + a.hora).localeCompare(b.data + b.hora); });
+    var historico = todos.filter(function (a) { return !(a.status === 'agendado' && a.data >= hoje); })
+      .sort(function (a, b) { return (b.data + b.hora).localeCompare(a.data + a.hora); });
+    var lista = ui.meusFiltro === 'historico' ? historico : proximos;
+
+    var fp = $('filtro-proximos');
+    var fh = $('filtro-historico');
+    fp.setAttribute('aria-pressed', String(ui.meusFiltro === 'proximos'));
+    fh.setAttribute('aria-pressed', String(ui.meusFiltro === 'historico'));
+    fp.classList.toggle('active', ui.meusFiltro === 'proximos');
+    fh.classList.toggle('active', ui.meusFiltro === 'historico');
+
+    var apptReagendar = ui.rescheduleId ? DB.agendamentos.find(function (a) { return a.id === ui.rescheduleId && a.clienteId === cliente.id; }) : null;
+    var painel = $('reagendar-painel');
+    if (apptReagendar) {
+      painel.hidden = false;
+      var srvR = getServico(apptReagendar.servicoId);
+      var barR = getBarbeiro(apptReagendar.barbeiroId);
+      setText('reagendar-resumo', (srvR ? srvR.nome : 'Serviço') + ' · ' + (barR ? barR.nome : 'Barbeiro') + ' · atualmente ' + fmtLong(apptReagendar.data) + ' às ' + apptReagendar.hora);
+      var dateEl = $('reagendar-data');
+      dateEl.min = hoje;
+      dateEl.max = maxDate();
+      if (!ui.rescheduleDate || ui.rescheduleDate < hoje) {
+        ui.rescheduleDate = apptReagendar.data >= hoje ? apptReagendar.data : hoje;
+      }
+      dateEl.value = ui.rescheduleDate;
+      fillRescheduleHours();
+    } else {
+      painel.hidden = true;
+      ui.rescheduleId = null;
+    }
+
+    var box = $('meus-agendamentos');
+    if (!lista.length) {
+      box.innerHTML = '<p class="empty">' + (ui.meusFiltro === 'historico' ? 'Nenhum agendamento no histórico.' : 'Você ainda não tem agendamentos próximos.') + '</p>';
+      return;
+    }
+
+    box.innerHTML = lista.map(function (a, i) {
+      var n = i + 1;
+      var servico = getServico(a.servicoId);
+      var barbeiro = getBarbeiro(a.barbeiroId);
+      var podeAgir = a.status === 'agendado' && a.data >= hoje;
+      var html = '<article class="appt-card" id="agendamento-' + n + '">' +
+        '<div class="appt-top"><div><span class="appt-date">' + esc(fmtLong(a.data)) + '</span><h3>' + esc(servico ? servico.nome : 'Serviço') + '</h3></div>' +
+        '<span class="status status-' + esc(a.status) + '">' + esc(STATUS_LABEL[a.status] || a.status) + '</span></div>' +
+        '<div class="meta-grid">' +
+        '<div><span>Horário</span><strong>' + esc(a.hora) + ' · ' + a.duracaoMin + ' min</strong></div>' +
+        '<div><span>Profissional</span><strong>' + esc(barbeiro ? barbeiro.nome : '—') + '</strong></div>' +
+        '<div><span>Valor</span><strong>' + money(a.precoCentavos) + '</strong></div>' +
+        '<div><span>Código</span><strong>#' + a.id + '</strong></div>' +
+        '</div>';
+      if (podeAgir) {
+        html += '<div class="appt-actions">' +
+          '<button id="btn-reagendar-' + n + '" class="btn btn-outline btn-sm" type="button" data-action="open-reschedule" data-id="' + a.id + '">Reagendar</button>' +
+          '<button id="btn-cancelar-' + n + '" class="btn btn-danger btn-sm" type="button" data-action="ask-cancel" data-id="' + a.id + '">Cancelar</button>' +
+          '</div>';
+      }
+      if (ui.pendingCancelId === a.id) {
+        html += '<div class="inline-confirm"><p>Cancelar este agendamento? O horário será liberado para outra pessoa.</p><div class="row-actions">' +
+          '<button id="btn-confirmar-cancelamento-' + n + '" class="btn btn-danger btn-sm" type="button" data-action="confirm-cancel" data-id="' + a.id + '">Sim, cancelar</button>' +
+          '<button class="btn btn-ghost btn-sm" type="button" data-action="dismiss-cancel">Manter</button>' +
+          '</div></div>';
+      }
+      html += '</article>';
+      return html;
+    }).join('');
+  }
+
+  function fillRescheduleHours() {
+    var sess = DB.sessao;
+    if (!sess || sess.papel !== 'cliente' || !ui.rescheduleId) return;
+    var appt = DB.agendamentos.find(function (a) { return a.id === ui.rescheduleId && a.clienteId === sess.clienteId; });
+    if (!appt) return;
+    var dateEl = $('reagendar-data');
+    var sel = $('reagendar-hora');
+    if (!dateEl || !sel) return;
+    var servico = getServico(appt.servicoId);
+    var data = dateEl.value;
+    var slots = servico && data ? slotsFor(servico, data, appt.barbeiroId, appt.id) : [];
+    var horas = [];
+    slots.forEach(function (s) { if (horas.indexOf(s.hora) === -1) horas.push(s.hora); });
+    sel.innerHTML = '';
+    if (!horas.length) {
+      var opt0 = document.createElement('option');
+      opt0.value = '';
+      opt0.textContent = !servico ? 'Serviço indisponível' : 'Sem horários nesta data';
+      sel.appendChild(opt0);
+      sel.disabled = true;
+      return;
+    }
+    horas.forEach(function (h) {
+      var opt = document.createElement('option');
+      opt.value = h;
+      opt.textContent = h;
+      sel.appendChild(opt);
+    });
+    sel.disabled = false;
+    var preferida = (appt.data === data && horas.indexOf(appt.hora) !== -1) ? appt.hora : horas[0];
+    sel.value = preferida;
+  }
+
+  function salvarReagendamento() {
+    var sess = DB.sessao;
+    setErro('reagendar-erro', '');
+    if (!sess || sess.papel !== 'cliente' || !ui.rescheduleId) {
+      setErro('reagendar-erro', 'Abra o reagendamento de um agendamento seu.');
+      return;
+    }
+    var appt = DB.agendamentos.find(function (a) { return a.id === ui.rescheduleId && a.clienteId === sess.clienteId; });
+    if (!appt) { setErro('reagendar-erro', 'Agendamento não encontrado.'); return; }
+    if (appt.status !== 'agendado') { setErro('reagendar-erro', 'Este agendamento não está mais ativo.'); return; }
+    var data = $('reagendar-data').value;
+    var hora = $('reagendar-hora').value;
+    if (!data) { setErro('reagendar-erro', 'Escolha a nova data.'); return; }
+    if (!hora) { setErro('reagendar-erro', 'Escolha o novo horário.'); return; }
+    if (dateStatus(data) !== 'ok') { setErro('reagendar-erro', 'Essa data não está disponível.'); return; }
+    var servico = getServico(appt.servicoId);
+    if (!servico) { setErro('reagendar-erro', 'Serviço indisponível.'); return; }
+    var slots = slotsFor(servico, data, appt.barbeiroId, appt.id);
+    var valido = slots.some(function (s) { return s.hora === hora; });
+    if (!valido) {
+      setErro('reagendar-erro', 'Esse horário não está mais livre. Escolha outro.');
+      fillRescheduleHours();
+      return;
+    }
+    appt.data = data;
+    appt.hora = hora;
+    appt.atualizadoEm = isoNow();
+    saveDB();
+    ui.rescheduleId = null;
+    ui.rescheduleDate = null;
+    renderMeus();
+    toast('Agendamento reagendado. O horário anterior foi liberado.', 'ok');
+  }
+
+  function cancelarAgendamento(id) {
+    var sess = DB.sessao;
+    if (!sess || sess.papel !== 'cliente') return;
+    var appt = DB.agendamentos.find(function (a) { return a.id === id; });
+    if (!appt || appt.clienteId !== sess.clienteId) {
+      toast('Agendamento não encontrado.', 'erro');
+      return;
+    }
+    if (appt.status !== 'agendado') {
+      toast('Este agendamento não pode mais ser cancelado.', 'erro');
+      return;
+    }
+    appt.status = 'cancelado';
+    appt.atualizadoEm = isoNow();
+    ui.pendingCancelId = null;
+    saveDB();
+    renderMeus();
+    toast('Agendamento cancelado. Horário liberado.', 'ok');
+  }
+
+  /* ---------- Entrar ---------- */
+  function renderEntrar() {
+    var box = $('sessao-atual');
+    var sess = DB.sessao;
+    if (!sess) {
+      box.innerHTML = '<div class="session-line">' + avatar('Visitante', 'avatar-sm avatar-generic') + '<div class="client-main"><strong>Você não está conectado</strong><span>Entre como cliente ou use uma conta de demonstração.</span></div></div>';
+      return;
+    }
+    var nome = sessionLabel();
+    box.innerHTML = '<div class="session-line">' + avatar(nome.replace(' · Cliente', '').replace(' · Barbeiro', '').replace('Admin · ', ''), 'avatar-sm') +
+      '<div class="client-main"><strong>' + esc(nome) + '</strong><span>Sessão ativa neste navegador</span></div>' +
+      '<button class="btn btn-ghost btn-sm" type="button" data-action="logout">' + icon('logout', 'icon-sm') + ' Sair</button></div>';
+  }
+
+  function finishClientLogin(cliente, mensagem, forceView) {
+    DB.sessao = { papel: 'cliente', clienteId: cliente.id, desde: isoNow() };
+    saveDB();
+    var destino = forceView || (ui.afterLogin === 'agendar' ? 'agendar' : 'meus');
+    ui.afterLogin = null;
+    limparEstadoSessaoUI();
+    limparErrosAuth();
+    goView(destino);
+    toast(mensagem, 'ok');
+  }
+
+  function registrarCliente() {
+    setErro('cadastro-erro', '');
+    var nome = $('cadastro-nome').value.trim();
+    var sobrenome = $('cadastro-sobrenome').value.trim();
+    var telefone = $('cadastro-telefone').value.replace(/\D/g, '');
+    var pin = $('cadastro-pin').value.trim();
+    if (nome.length < 2 || nome.length > 60) { setErro('cadastro-erro', 'Informe um nome entre 2 e 60 caracteres.'); return; }
+    if (sobrenome.length < 2 || sobrenome.length > 60) { setErro('cadastro-erro', 'Informe um sobrenome entre 2 e 60 caracteres.'); return; }
+    if (telefone.length < 10 || telefone.length > 11) { setErro('cadastro-erro', 'Informe um telefone válido com DDD (10 ou 11 dígitos).'); return; }
+    if (!/^\d{4,6}$/.test(pin)) { setErro('cadastro-erro', 'O PIN deve ter de 4 a 6 dígitos.'); return; }
+    var existente = DB.clientes.find(function (c) { return c.telefone === telefone; });
+    if (existente) {
+      if (existente.pin === pin) {
+        finishClientLogin(existente, 'Bem-vindo de volta, ' + existente.nome + '.', ui.afterLogin === 'agendar' ? 'agendar' : 'meus');
+        return;
+      }
+      setErro('cadastro-erro', 'Não foi possível concluir o cadastro com esses dados. Se você já tem conta, entre com seu PIN.');
+      return;
+    }
+    var novo = {
+      id: nextId(DB.clientes),
+      nome: nome,
+      sobrenome: sobrenome,
+      telefone: telefone,
+      pin: pin,
+      criadoEm: isoNow()
+    };
+    DB.clientes.push(novo);
+    finishClientLogin(novo, 'Acesso criado. Bem-vindo à Barber Prime.');
+  }
+
+  function entrarCliente() {
+    setErro('login-erro', '');
+    var telefone = $('login-telefone').value.replace(/\D/g, '');
+    var pin = $('login-pin').value.trim();
+    if (telefone.length < 10 || !/^\d{4,6}$/.test(pin)) {
+      setErro('login-erro', 'Telefone ou PIN inválidos.');
+      return;
+    }
+    var cliente = DB.clientes.find(function (c) { return c.telefone === telefone && c.pin === pin; });
+    if (!cliente) {
+      setErro('login-erro', 'Telefone ou PIN inválidos.');
+      return;
+    }
+    finishClientLogin(cliente, 'Bem-vindo de volta, ' + cliente.nome + '.');
+  }
+
+  function entrarStaff() {
+    setErro('login-staff-erro', '');
+    var login = $('login-staff-login').value.trim();
+    var senha = $('login-staff-senha').value;
+    if (!login || !senha) {
+      setErro('login-staff-erro', 'Informe login e senha.');
+      return;
+    }
+    if (login === 'admin') {
+      if (senha !== 'admin123') {
+        setErro('login-staff-erro', 'Login ou senha inválidos.');
+        return;
+      }
+      DB.sessao = { papel: 'admin', login: 'admin', desde: isoNow() };
+      saveDB();
+      ui.afterLogin = null;
+      limparEstadoSessaoUI();
+      limparErrosAuth();
+      goView('admin');
+      toast('Painel administrativo aberto.', 'ok');
+      return;
+    }
+    var barbeiro = DB.barbeiros.find(function (b) { return (b.login || ('barbeiro' + b.id)) === login; });
+    if (!barbeiro || senha !== 'barbeiro123') {
+      setErro('login-staff-erro', 'Login ou senha inválidos.');
+      return;
+    }
+    DB.sessao = { papel: 'barbeiro', barbeiroId: barbeiro.id, login: login, desde: isoNow() };
+    saveDB();
+    ui.afterLogin = null;
+    limparEstadoSessaoUI();
+    limparErrosAuth();
+    goView('barbeiro');
+    toast('Painel de ' + barbeiro.nome + ' aberto.', 'ok');
+  }
+
+  function sair() {
+    if (!DB.sessao) {
+      toast('Você não está conectado.', 'info');
+      return;
+    }
+    DB.sessao = null;
+    saveDB();
+    ui.afterLogin = null;
+    limparEstadoSessaoUI();
+    limparErrosAuth();
+    $('reset-confirm').hidden = true;
+    goView('inicio');
+    toast('Sessão encerrada.', 'ok');
+  }
+
+  /* ---------- Painel do barbeiro ---------- */
+  function renderBarber() {
+    var sess = DB.sessao;
+    if (!sess || sess.papel !== 'barbeiro') return;
+    var barbeiro = getBarbeiro(sess.barbeiroId);
+    if (!barbeiro) return;
+    var hoje = todayStr();
+    var ate = ui.barberScope === 'semana' ? addDays(hoje, 6) : hoje;
+    $('agenda-hoje').setAttribute('aria-pressed', String(ui.barberScope === 'hoje'));
+    $('agenda-semana').setAttribute('aria-pressed', String(ui.barberScope === 'semana'));
+
+    var agendamentos = DB.agendamentos.filter(function (a) {
+      return a.barbeiroId === barbeiro.id && a.data >= hoje && a.data <= ate;
+    }).sort(function (a, b) { return (a.data + a.hora).localeCompare(b.data + b.hora); });
+    var doDia = agendamentos.filter(function (a) { return a.data === hoje; });
+    var bloqueios = DB.bloqueios.filter(function (b) {
+      return b.barbeiroId === barbeiro.id && b.data >= hoje;
+    }).sort(function (a, b) { return (a.data + a.horaInicio).localeCompare(b.data + b.horaInicio); });
+
+    var html = '<div class="card barber-head">' + avatar(barbeiro.nome) +
+      '<div style="min-width:0"><h2>' + esc(barbeiro.nome) + '</h2><p class="muted small">' + esc((barbeiro.especialidades || []).join(' · ')) + '</p></div></div>';
+    html += '<div class="card"><div class="barber-summary">' +
+      '<span class="badge">' + icon('calendar') + (ui.barberScope === 'hoje' ? 'Hoje' : 'Próximos 7 dias') + '</span>' +
+      '<span class="badge">' + icon('list') + agendamentos.length + ' agendamento(s)</span>' +
+      '<span class="badge">' + icon('clock') + doDia.length + ' hoje</span>' +
+      '<span class="badge">' + icon('x') + bloqueios.length + ' bloqueio(s)</span>' +
+      '</div>';
+    if (!agendamentos.length) {
+      html += '<p class="empty" style="margin-top:12px">Nenhum agendamento ' + (ui.barberScope === 'hoje' ? 'para hoje.' : 'nos próximos 7 dias.') + '</p>';
+    } else {
+      html += '<div class="stack" style="margin-top:12px">';
+      agendamentos.forEach(function (a, i) {
+        var n = i + 1;
+        var servico = getServico(a.servicoId);
+        var cliente = getCliente(a.clienteId);
+        html += '<article class="agenda-item">' +
+          '<div class="time">' + esc(a.hora) + '<small>' + a.duracaoMin + ' min</small><small>' + (ui.barberScope === 'semana' ? esc(fmtShort(a.data)) : '') + '</small></div>' +
+          '<div style="min-width:0">' +
+          '<h3>' + esc(cliente ? cliente.nome + ' ' + cliente.sobrenome : 'Cliente') + '</h3>' +
+          '<p class="line">' + esc(servico ? servico.nome : 'Serviço') + ' · ' + money(a.precoCentavos) + '</p>' +
+          '<p class="line">' + (cliente ? esc(maskPhone(cliente.telefone)) : '') + '</p>' +
+          '<div style="margin-top:6px"><span class="status status-' + esc(a.status) + '">' + esc(STATUS_LABEL[a.status] || a.status) + '</span></div>' +
+          (a.status === 'agendado' ? '<div class="agenda-actions">' +
+            '<button id="btn-concluir-' + n + '" class="btn btn-outline btn-sm" type="button" data-action="barber-status" data-id="' + a.id + '" data-status="concluido">' + icon('check', 'icon-sm') + ' Concluir</button>' +
+            '<button id="btn-faltou-' + n + '" class="btn btn-ghost btn-sm" type="button" data-action="barber-status" data-id="' + a.id + '" data-status="faltou">' + icon('x', 'icon-sm') + ' Faltou</button>' +
+            '</div>' : '') +
+          '</div></article>';
+      });
+      html += '</div>';
+    }
+    html += '</div>';
+    $('painel-barbeiro').innerHTML = html;
+
+    $('lista-bloqueios').innerHTML = bloqueios.length ? bloqueios.map(function (b) {
+      return '<div class="block-item"><div><strong>' + esc(fmtShort(b.data)) + ' · ' + esc(b.horaInicio) + '–' + esc(b.horaFim) + '</strong><span>' + esc(b.motivo || 'Bloqueio') + '</span></div>' +
+        '<button class="btn btn-ghost btn-sm" type="button" data-action="remove-block" data-id="' + b.id + '">' + icon('trash', 'icon-sm') + ' Remover</button></div>';
+    }).join('') : '<p class="muted small">Nenhum bloqueio futuro para este barbeiro.</p>';
+
+    var form = $('bloqueio-form');
+    form.hidden = !ui.bloqueioOpen;
+    $('btn-bloquear').textContent = ui.bloqueioOpen ? 'Fechar formulário' : 'Bloquear horário';
+    var dataInput = $('bloqueio-data');
+    dataInput.min = hoje;
+    dataInput.max = maxDate();
+    if (!dataInput.value || dataInput.value < hoje) {
+      dataInput.value = nextOpenDay(hoje);
+    }
+  }
+
+  function alterarStatusAgendamento(id, status) {
+    var sess = DB.sessao;
+    if (!sess || sess.papel !== 'barbeiro') return;
+    var appt = DB.agendamentos.find(function (a) { return a.id === id; });
+    if (!appt || appt.barbeiroId !== sess.barbeiroId) {
+      toast('Você só pode alterar a própria agenda.', 'erro');
+      return;
+    }
+    if (appt.status !== 'agendado') {
+      toast('Somente agendamentos ativos podem mudar de status.', 'erro');
+      return;
+    }
+    appt.status = status;
+    appt.atualizadoEm = isoNow();
+    saveDB();
+    renderBarber();
+    toast(status === 'concluido' ? 'Atendimento concluído.' : 'Falta registrada.', 'ok');
+  }
+
+  function salvarBloqueio() {
+    var sess = DB.sessao;
+    if (!sess || sess.papel !== 'barbeiro') return;
+    setErro('bloqueio-erro', '');
+    var data = $('bloqueio-data').value;
+    var inicio = $('bloqueio-inicio').value;
+    var fim = $('bloqueio-fim').value;
+    var motivo = $('bloqueio-motivo').value.trim() || 'Bloqueio';
+    if (!data || !inicio || !fim) { setErro('bloqueio-erro', 'Preencha data, início e fim.'); return; }
+    if (data < todayStr()) { setErro('bloqueio-erro', 'Não é possível bloquear uma data passada.'); return; }
+    if (dateStatus(data) !== 'ok') { setErro('bloqueio-erro', 'A data escolhida é domingo, feriado ou está fora do período.'); return; }
+    var ini = hmToMin(inicio);
+    var f = hmToMin(fim);
+    if (ini >= f) { setErro('bloqueio-erro', 'O horário final deve ser depois do inicial.'); return; }
+    if (ini < 9 * 60 || f > 19 * 60) { setErro('bloqueio-erro', 'O bloqueio deve ficar dentro do horário da loja (09:00–19:00).'); return; }
+    if (data === todayStr() && f <= nowMinutes()) { setErro('bloqueio-erro', 'Escolha um intervalo futuro.'); return; }
+    if (hasAppointmentConflict(sess.barbeiroId, data, ini, f)) {
+      setErro('bloqueio-erro', 'Existe agendamento nesse intervalo. Cancele ou reagende antes de bloquear.');
+      return;
+    }
+    if (hasBlockConflict(sess.barbeiroId, data, ini, f)) {
+      setErro('bloqueio-erro', 'Já existe um bloqueio sobreposto nesse intervalo.');
+      return;
+    }
+    DB.bloqueios.push({
+      id: nextId(DB.bloqueios),
+      barbeiroId: sess.barbeiroId,
+      data: data,
+      horaInicio: inicio,
+      horaFim: fim,
+      motivo: motivo
+    });
+    saveDB();
+    $('bloqueio-motivo').value = '';
+    renderBarber();
+    toast('Horário bloqueado na sua agenda.', 'ok');
+  }
+
+  function removerBloqueio(id) {
+    var sess = DB.sessao;
+    if (!sess) return;
+    var idx = DB.bloqueios.findIndex(function (b) { return b.id === id; });
+    if (idx === -1) { toast('Bloqueio não encontrado.', 'erro'); return; }
+    var b = DB.bloqueios[idx];
+    if (sess.papel === 'barbeiro' && b.barbeiroId !== sess.barbeiroId) {
+      toast('Sem permissão para remover este bloqueio.', 'erro');
+      return;
+    }
+    if (sess.papel !== 'barbeiro' && sess.papel !== 'admin') {
+      toast('Sem permissão.', 'erro');
+      return;
+    }
+    DB.bloqueios.splice(idx, 1);
+    saveDB();
+    renderBarber();
+    toast('Bloqueio removido.', 'ok');
+  }
+
+  /* ---------- Admin ---------- */
+  function renderAdmin() {
+    var sess = DB.sessao;
+    if (!sess || sess.papel !== 'admin') return;
+    var hoje = todayStr();
+    var doDia = DB.agendamentos.filter(function (a) { return a.data === hoje; });
+    setText('admin-hoje', fmtLong(hoje));
+    setText('kpi-dia', doDia.filter(function (a) { return a.status !== 'cancelado'; }).length);
+    setText('kpi-concluidos', doDia.filter(function (a) { return a.status === 'concluido'; }).length);
+    setText('kpi-cancelados', doDia.filter(function (a) { return a.status === 'cancelado'; }).length);
+    setText('kpi-clientes', DB.clientes.length);
+    var receita = doDia.filter(function (a) { return a.status === 'concluido'; })
+      .reduce(function (total, a) { return total + (Number(a.precoCentavos) || 0); }, 0);
+    setText('kpi-receita', money(receita));
+
+    renderAdminAgendas(hoje);
+    renderAdminBarbeiros();
+    renderAdminServicos();
+    renderAdminClientes();
+    renderAdminFeriados();
+    populateManual();
+    $('manual-form').hidden = !ui.manualOpen;
+    $('btn-novo-agendamento').textContent = ui.manualOpen ? 'Fechar agendamento manual' : 'Novo agendamento';
+  }
+
+  function renderAdminAgendas(hoje) {
+    var html = DB.barbeiros.map(function (b) {
+      var lista = DB.agendamentos.filter(function (a) { return a.data === hoje && a.barbeiroId === b.id; })
+        .sort(function (a, c) { return a.hora.localeCompare(c.hora); });
+      var blocos = DB.bloqueios.filter(function (x) {
+        return x.data === hoje && (x.barbeiroId === b.id || x.barbeiroId === null || typeof x.barbeiroId === 'undefined');
+      }).sort(function (x, y) { return x.horaInicio.localeCompare(y.horaInicio); });
+      var corpo = lista.map(function (a) {
+        var servico = getServico(a.servicoId);
+        var cliente = getCliente(a.clienteId);
+        return '<div class="mini-appt status-' + esc(a.status) + '">' +
+          '<div class="mini-time">' + esc(a.hora) + '</div>' +
+          '<div class="mini-info"><strong>' + esc(cliente ? cliente.nome + ' ' + cliente.sobrenome : 'Cliente') + '</strong>' +
+          '<span>' + esc(servico ? servico.nome : 'Serviço') + ' · ' + a.duracaoMin + ' min</span>' +
+          '<span class="status status-' + esc(a.status) + '">' + esc(STATUS_LABEL[a.status] || a.status) + '</span></div>' +
+          '</div>';
+      }).join('');
+      corpo += blocos.map(function (x) {
+        return '<div class="mini-appt"><div class="mini-time">' + esc(x.horaInicio) + '</div><div class="mini-info"><strong>Bloqueio</strong><span>' + esc(x.horaInicio) + '–' + esc(x.horaFim) + ' · ' + esc(x.motivo || 'Agenda') + '</span></div></div>';
+      }).join('');
+      return '<div class="admin-agenda-col' + (b.ativo ? '' : ' inactive') + '">' +
+        '<div class="col-head">' + avatar(b.nome, 'avatar-sm') + '<div style="min-width:0"><strong>' + esc(b.nome) + '</strong><small>@' + esc(b.apelido || b.login || ('barbeiro' + b.id)) + (b.ativo ? '' : ' · inativo') + '</small></div></div>' +
+        (corpo || '<p class="muted small">Sem agendamentos hoje.</p>') +
+        '</div>';
+    }).join('');
+    $('admin-agendas').innerHTML = html;
+  }
+
+  function renderAdminBarbeiros() {
+    $('admin-barbeiros').innerHTML = DB.barbeiros.map(function (b) {
+      return '<div class="admin-row">' +
+        '<div class="field"><label for="admin-barbeiro-nome-' + b.id + '">Nome</label><input id="admin-barbeiro-nome-' + b.id + '" type="text" maxlength="60" value="' + esc(b.nome) + '"></div>' +
+        '<div class="field"><label for="admin-barbeiro-esp-' + b.id + '">Especialidades (vírgula)</label><input id="admin-barbeiro-esp-' + b.id + '" type="text" value="' + esc((b.especialidades || []).join(', ')) + '"></div>' +
+        '<label class="check" for="admin-barbeiro-ativo-' + b.id + '"><input id="admin-barbeiro-ativo-' + b.id + '" type="checkbox"' + (b.ativo ? ' checked' : '') + '> Ativo</label>' +
+        '<button class="btn btn-outline" type="button" data-action="save-barber" data-id="' + b.id + '">' + icon('edit', 'icon-sm') + ' Salvar</button>' +
+        '</div>';
+    }).join('');
+  }
+
+  function renderAdminServicos() {
+    $('admin-servicos').innerHTML = DB.servicos.map(function (s) {
+      return '<div class="admin-row admin-servico-grid">' +
+        '<div class="field"><label for="admin-servico-nome-' + s.id + '">Nome</label><input id="admin-servico-nome-' + s.id + '" type="text" maxlength="60" value="' + esc(s.nome) + '"></div>' +
+        '<div class="field"><label for="admin-servico-preco-' + s.id + '">Preço (R$)</label><input id="admin-servico-preco-' + s.id + '" type="number" min="0" step="0.01" inputmode="decimal" value="' + (Number(s.precoCentavos) / 100).toFixed(2) + '"></div>' +
+        '<div class="field"><label for="admin-servico-dur-' + s.id + '">Duração</label><input id="admin-servico-dur-' + s.id + '" type="number" min="15" max="240" step="15" value="' + Number(s.duracaoMin) + '"></div>' +
+        '<label class="check" for="admin-servico-ativo-' + s.id + '"><input id="admin-servico-ativo-' + s.id + '" type="checkbox"' + (s.ativo ? ' checked' : '') + '> Ativo</label>' +
+        '<button class="btn btn-outline" type="button" data-action="save-service" data-id="' + s.id + '">' + icon('edit', 'icon-sm') + ' Salvar</button>' +
+        '</div>';
+    }).join('');
+  }
+
+  function renderAdminClientes() {
+    var clientes = DB.clientes.slice().sort(function (a, b) { return (a.nome + a.sobrenome).localeCompare(b.nome + b.sobrenome); });
+    $('admin-clientes').innerHTML = clientes.length ? clientes.map(function (c) {
+      var qtd = DB.agendamentos.filter(function (a) { return a.clienteId === c.id; }).length;
+      return '<div class="client-row">' + avatar(c.nome + ' ' + c.sobrenome, 'avatar-sm') +
+        '<div class="client-main"><strong>' + esc(c.nome + ' ' + c.sobrenome) + '</strong><span>' + esc(maskPhone(c.telefone)) + ' · desde ' + esc(fmtShort(String(c.criadoEm).slice(0, 10))) + '</span></div>' +
+        '<span class="count">' + qtd + ' ag.</span></div>';
+    }).join('') : '<p class="muted small">Nenhum cliente cadastrado.</p>';
+  }
+
+  function renderAdminFeriados() {
+    var feriados = DB.feriados.slice().sort(function (a, b) { return a.data.localeCompare(b.data); });
+    $('lista-feriados').innerHTML = feriados.length ? feriados.map(function (f) {
+      return '<div class="holiday-row"><div><strong>' + esc(fmtLong(f.data)) + '</strong><span>' + esc(f.descricao || 'Feriado') + '</span></div>' +
+        '<button class="btn btn-ghost btn-sm" type="button" data-action="remove-holiday" data-data="' + esc(f.data) + '">' + icon('trash', 'icon-sm') + ' Remover</button></div>';
+    }).join('') : '<p class="muted small">Nenhum feriado cadastrado. Domingos já são fechados automaticamente.</p>';
+    var feriadoData = $('feriado-data');
+    if (feriadoData) {
+      feriadoData.min = todayStr();
+      feriadoData.max = maxDate();
+    }
+  }
+
+  function populateManual() {
+    var cs = $('manual-cliente');
+    var ss = $('manual-servico');
+    var bs = $('manual-barbeiro');
+    if (!cs || !ss || !bs) return;
+    var clienteAtual = cs.value;
+    var servicoAtual = ss.value;
+    var barbeiroAtual = bs.value;
+
+    var clientes = DB.clientes.slice().sort(function (a, b) { return (a.nome + a.sobrenome).localeCompare(b.nome + b.sobrenome); });
+    cs.innerHTML = '<option value="">Selecione o cliente</option>' + clientes.map(function (c) {
+      return '<option value="' + c.id + '">' + esc(c.nome + ' ' + c.sobrenome + ' · ' + maskPhone(c.telefone)) + '</option>';
+    }).join('');
+    if (clientes.some(function (c) { return String(c.id) === clienteAtual; })) cs.value = clienteAtual;
+
+    var servicos = DB.servicos.filter(function (s) { return s.ativo; });
+    ss.innerHTML = '<option value="">Selecione o serviço</option>' + servicos.map(function (s) {
+      return '<option value="' + s.id + '">' + esc(s.nome + ' · ' + money(s.precoCentavos) + ' · ' + s.duracaoMin + ' min') + '</option>';
+    }).join('');
+    if (servicos.some(function (s) { return String(s.id) === servicoAtual; })) ss.value = servicoAtual;
+
+    var barbeiros = DB.barbeiros.filter(function (b) { return b.ativo; });
+    bs.innerHTML = '<option value="">Qualquer barbeiro</option>' + barbeiros.map(function (b) {
+      return '<option value="' + b.id + '">' + esc(b.nome) + '</option>';
+    }).join('');
+    if (barbeiros.some(function (b) { return String(b.id) === barbeiroAtual; })) bs.value = barbeiroAtual;
+
+    var dateEl = $('manual-data');
+    dateEl.min = todayStr();
+    dateEl.max = maxDate();
+    if (!dateEl.value || dateEl.value < todayStr()) {
+      dateEl.value = nextOpenDay(todayStr());
+    }
+    fillManualHoras();
+  }
+
+  function fillManualHoras() {
+    var sel = $('manual-hora');
+    if (!sel) return;
+    var servico = getServico($('manual-servico').value);
+    var data = $('manual-data').value;
+    var barbeiroId = $('manual-barbeiro').value ? Number($('manual-barbeiro').value) : null;
+    var anterior = sel.value;
+    sel.innerHTML = '';
+    if (!servico || !data) {
+      var o0 = document.createElement('option');
+      o0.value = '';
+      o0.textContent = 'Escolha serviço e data';
+      sel.appendChild(o0);
+      sel.disabled = true;
+      return;
+    }
+    var slots = slotsFor(servico, data, barbeiroId);
+    var horas = [];
+    slots.forEach(function (s) { if (horas.indexOf(s.hora) === -1) horas.push(s.hora); });
+    if (!horas.length) {
+      var o1 = document.createElement('option');
+      o1.value = '';
+      o1.textContent = dateStatus(data) === 'ok' ? 'Sem horários nesta data' : 'Data indisponível';
+      sel.appendChild(o1);
+      sel.disabled = true;
+      return;
+    }
+    horas.forEach(function (h) {
+      var opt = document.createElement('option');
+      opt.value = h;
+      opt.textContent = h;
+      sel.appendChild(opt);
+    });
+    sel.disabled = false;
+    sel.value = (anterior && horas.indexOf(anterior) !== -1) ? anterior : horas[0];
+  }
+
+  function salvarManual() {
+    if (!exigirAdmin()) return;
+    setErro('manual-erro', '');
+    var clienteId = Number($('manual-cliente').value);
+    var servico = getServico($('manual-servico').value);
+    var data = $('manual-data').value;
+    var hora = $('manual-hora').value;
+    var barbeiroId = $('manual-barbeiro').value ? Number($('manual-barbeiro').value) : null;
+    if (!clienteId || !getCliente(clienteId)) { setErro('manual-erro', 'Selecione o cliente.'); return; }
+    if (!servico) { setErro('manual-erro', 'Selecione o serviço.'); return; }
+    if (!data) { setErro('manual-erro', 'Informe a data.'); return; }
+    if (dateStatus(data) !== 'ok') { setErro('manual-erro', 'Data fechada, passada ou fora do período permitido.'); return; }
+    if (!hora) { setErro('manual-erro', 'Escolha um horário.'); return; }
+    var slots = slotsFor(servico, data, barbeiroId);
+    var escolhido = slots.filter(function (s) { return s.hora === hora; })[0];
+    if (!escolhido) { setErro('manual-erro', 'Esse horário não está disponível.'); fillManualHoras(); return; }
+    var agora = isoNow();
+    DB.agendamentos.push({
+      id: nextId(DB.agendamentos),
+      clienteId: clienteId,
+      barbeiroId: escolhido.barbeiroId,
+      servicoId: servico.id,
+      data: data,
+      hora: hora,
+      duracaoMin: servico.duracaoMin,
+      precoCentavos: servico.precoCentavos,
+      status: 'agendado',
+      criadoEm: agora,
+      atualizadoEm: agora
+    });
+    saveDB();
+    renderAdmin();
+    toast('Agendamento manual criado para ' + fmtShort(data) + ' às ' + hora + '.', 'ok');
+  }
+
+  function salvarBarbeiro(id) {
+    if (!exigirAdmin()) return;
+    var b = getBarbeiro(id);
+    if (!b) return;
+    var nome = $('admin-barbeiro-nome-' + id).value.trim();
+    var esp = $('admin-barbeiro-esp-' + id).value.split(',').map(function (x) { return x.trim(); }).filter(Boolean);
+    var ativo = $('admin-barbeiro-ativo-' + id).checked;
+    if (nome.length < 2 || nome.length > 60) { toast('O nome deve ter entre 2 e 60 caracteres.', 'erro'); return; }
+    b.nome = nome;
+    b.especialidades = esp;
+    b.ativo = ativo;
+    saveDB();
+    renderAdmin();
+    toast('Barbeiro atualizado.', 'ok');
+  }
+
+  function salvarServico(id) {
+    if (!exigirAdmin()) return;
+    var s = getServico(id);
+    if (!s) return;
+    var nome = $('admin-servico-nome-' + id).value.trim();
+    var preco = Number(String($('admin-servico-preco-' + id).value).replace(',', '.'));
+    var dur = Number($('admin-servico-dur-' + id).value);
+    var ativo = $('admin-servico-ativo-' + id).checked;
+    if (nome.length < 2 || nome.length > 60) { toast('O nome do serviço deve ter entre 2 e 60 caracteres.', 'erro'); return; }
+    if (!isFinite(preco) || preco < 0) { toast('Informe um preço válido.', 'erro'); return; }
+    if (!isFinite(dur) || dur < 15 || dur > 240) { toast('A duração deve ficar entre 15 e 240 minutos.', 'erro'); return; }
+    s.nome = nome;
+    s.precoCentavos = Math.round(preco * 100);
+    s.duracaoMin = Math.round(dur);
+    s.ativo = ativo;
+    saveDB();
+    renderAdmin();
+    toast('Serviço atualizado.', 'ok');
+  }
+
+  function criarServico() {
+    if (!exigirAdmin()) return;
+    setErro('novo-servico-erro', '');
+    var nome = $('novo-servico-nome').value.trim();
+    var preco = Number(String($('novo-servico-preco').value).replace(',', '.'));
+    var dur = Number($('novo-servico-duracao').value);
+    var desc = $('novo-servico-descricao').value.trim();
+    var ativo = $('novo-servico-ativo').checked;
+    if (nome.length < 2 || nome.length > 60) { setErro('novo-servico-erro', 'Informe um nome entre 2 e 60 caracteres.'); return; }
+    if (DB.servicos.some(function (s) { return s.nome.toLowerCase() === nome.toLowerCase(); })) { setErro('novo-servico-erro', 'Já existe um serviço com esse nome.'); return; }
+    if (!isFinite(preco) || preco < 0) { setErro('novo-servico-erro', 'Informe um preço válido.'); return; }
+    if (!isFinite(dur) || dur < 15 || dur > 240) { setErro('novo-servico-erro', 'A duração deve ficar entre 15 e 240 minutos.'); return; }
+    DB.servicos.push({
+      id: nextId(DB.servicos),
+      nome: nome,
+      descricao: desc,
+      precoCentavos: Math.round(preco * 100),
+      duracaoMin: Math.round(dur),
+      ativo: ativo
+    });
+    saveDB();
+    $('novo-servico-nome').value = '';
+    $('novo-servico-preco').value = '';
+    $('novo-servico-duracao').value = '30';
+    $('novo-servico-descricao').value = '';
+    renderAdmin();
+    toast('Serviço criado.', 'ok');
+  }
+
+  function adicionarFeriado() {
+    if (!exigirAdmin()) return;
+    setErro('feriado-erro', '');
+    var data = $('feriado-data').value;
+    var desc = $('feriado-descricao').value.trim() || 'Feriado';
+    if (!data) { setErro('feriado-erro', 'Informe a data do feriado.'); return; }
+    if (data < todayStr()) { setErro('feriado-erro', 'Escolha uma data de hoje em diante.'); return; }
+    if (weekdayOf(data) === 0) { setErro('feriado-erro', 'Domingos já são fechados automaticamente.'); return; }
+    if (DB.feriados.some(function (f) { return f.data === data; })) { setErro('feriado-erro', 'Essa data já está cadastrada.'); return; }
+    DB.feriados.push({ data: data, descricao: desc });
+    saveDB();
+    $('feriado-descricao').value = '';
+    $('feriado-data').value = '';
+    renderAdmin();
+    toast('Feriado adicionado. A data ficou fechada.', 'ok');
+  }
+
+  function removerFeriado(data) {
+    if (!exigirAdmin()) return;
+    var idx = DB.feriados.findIndex(function (f) { return f.data === data; });
+    if (idx === -1) return;
+    DB.feriados.splice(idx, 1);
+    saveDB();
+    renderAdmin();
+    toast('Feriado removido.', 'ok');
+  }
+
+  function resetDemo() {
+    if (!exigirAdmin()) return;
+    DB = seedState();
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(DB)); } catch (err) { /* memória apenas */ }
+    ui = freshUI();
+    ['login-erro', 'cadastro-erro', 'login-staff-erro', 'erro-booking', 'reagendar-erro', 'bloqueio-erro', 'manual-erro', 'feriado-erro', 'novo-servico-erro'].forEach(function (id) { setErro(id, ''); });
+    $('reset-confirm').hidden = true;
+    configureDateInputs();
+    goView('inicio');
+    toast('Dados de demonstração restaurados.', 'ok');
+  }
+
+  /* ---------- Configuração de inputs ---------- */
+  function configureDateInputs() {
+    var hoje = todayStr();
+    var max = maxDate();
+    ['manual-data', 'reagendar-data', 'bloqueio-data', 'feriado-data'].forEach(function (id) {
+      var el = $(id);
+      if (!el) return;
+      el.min = hoje;
+      el.max = max;
+    });
+    var bi = $('bloqueio-inicio');
+    var bf = $('bloqueio-fim');
+    if (bi && !bi.value) bi.value = '09:00';
+    if (bf && !bf.value) bf.value = '10:00';
+    var fd = $('feriado-data');
+    if (fd && !fd.value) fd.value = nextOpenDay(hoje);
+  }
+
+  /* ---------- Eventos estáticos ---------- */
+  function bindStatic() {
+    var navMap = {
+      'nav-inicio': 'inicio',
+      'nav-agendar': 'agendar',
+      'nav-meus': 'meus',
+      'nav-entrar': 'entrar',
+      'nav-barbeiro': 'barbeiro',
+      'nav-admin': 'admin'
+    };
+    Object.keys(navMap).forEach(function (id) {
+      var el = $(id);
+      if (el) el.addEventListener('click', function () { goView(navMap[id]); });
+    });
+
+    $('btn-sair').addEventListener('click', sair);
+    $('btn-agendar').addEventListener('click', function () { goView('agendar'); });
+    $('btn-home-meus').addEventListener('click', function () { goView('meus'); });
+
+    $('form-cadastro').addEventListener('submit', function (ev) { ev.preventDefault(); registrarCliente(); });
+    $('form-login').addEventListener('submit', function (ev) { ev.preventDefault(); entrarCliente(); });
+    $('form-staff').addEventListener('submit', function (ev) { ev.preventDefault(); entrarStaff(); });
+
+    ['cadastro-telefone', 'login-telefone'].forEach(function (id) {
+      var el = $(id);
+      if (!el) return;
+      el.addEventListener('input', function () {
+        var pos = el.value.length;
+        el.value = formatPhoneInput(el.value);
+        if (pos === 0) el.value = '';
+      });
+    });
+
+    $('btn-demo-cliente').addEventListener('click', function () {
+      var c = DB.clientes.find(function (x) { return x.telefone === '11987650001'; }) || DB.clientes[0];
+      if (!c) { toast('Nenhum cliente demo disponível.', 'erro'); return; }
+      ui.afterLogin = null;
+      finishClientLogin(c, 'Você entrou como cliente demo: ' + c.nome + '.', 'meus');
+    });
+    $('btn-demo-barbeiro').addEventListener('click', function () {
+      var b = getBarbeiro(1) || DB.barbeiros[0];
+      if (!b) { toast('Nenhum barbeiro demo disponível.', 'erro'); return; }
+      DB.sessao = { papel: 'barbeiro', barbeiroId: b.id, login: b.login || 'barbeiro1', desde: isoNow() };
+      saveDB();
+      ui.afterLogin = null;
+      limparEstadoSessaoUI();
+      limparErrosAuth();
+      goView('barbeiro');
+      toast('Você entrou como barbeiro demo: ' + b.nome + '.', 'ok');
+    });
+    $('btn-demo-admin').addEventListener('click', function () {
+      DB.sessao = { papel: 'admin', login: 'admin', desde: isoNow() };
+      saveDB();
+      ui.afterLogin = null;
+      limparEstadoSessaoUI();
+      limparErrosAuth();
+      goView('admin');
+      toast('Você entrou como administrador demo.', 'ok');
+    });
+
+    $('btn-semana-anterior').addEventListener('click', function () {
+      ui.calWeekStart = addDays(ui.calWeekStart, -7);
+      renderCalendar();
+    });
+    $('btn-semana-proxima').addEventListener('click', function () {
+      ui.calWeekStart = addDays(ui.calWeekStart, 7);
+      renderCalendar();
+    });
+    $('btn-proxima-data').addEventListener('click', escolherProximaData);
+    $('btn-proximo-horario').addEventListener('click', escolherProximoHorario);
+    $('btn-confirmar').addEventListener('click', confirmarAgendamento);
+
+    $('filtro-proximos').addEventListener('click', function () {
+      ui.meusFiltro = 'proximos';
+      ui.rescheduleId = null;
+      ui.pendingCancelId = null;
+      renderMeus();
+    });
+    $('filtro-historico').addEventListener('click', function () {
+      ui.meusFiltro = 'historico';
+      ui.rescheduleId = null;
+      ui.pendingCancelId = null;
+      renderMeus();
+    });
+
+    $('reagendar-data').addEventListener('change', function () {
+      ui.rescheduleDate = this.value;
+      setErro('reagendar-erro', '');
+      fillRescheduleHours();
+    });
+    $('btn-salvar-reagendamento').addEventListener('click', salvarReagendamento);
+
+    $('agenda-hoje').addEventListener('click', function () {
+      ui.barberScope = 'hoje';
+      renderBarber();
+    });
+    $('agenda-semana').addEventListener('click', function () {
+      ui.barberScope = 'semana';
+      renderBarber();
+    });
+    $('btn-bloquear').addEventListener('click', function () {
+      ui.bloqueioOpen = !ui.bloqueioOpen;
+      var form = $('bloqueio-form');
+      form.hidden = !ui.bloqueioOpen;
+      this.textContent = ui.bloqueioOpen ? 'Fechar formulário' : 'Bloquear horário';
+      if (ui.bloqueioOpen) {
+        setErro('bloqueio-erro', '');
+        var dataInput = $('bloqueio-data');
+        if (!dataInput.value || dataInput.value < todayStr()) dataInput.value = nextOpenDay(todayStr());
+        try { dataInput.focus(); } catch (err) {}
+      }
+    });
+    $('btn-salvar-bloqueio').addEventListener('click', salvarBloqueio);
+
+    $('btn-novo-agendamento').addEventListener('click', function () {
+      ui.manualOpen = !ui.manualOpen;
+      var form = $('manual-form');
+      form.hidden = !ui.manualOpen;
+      this.textContent = ui.manualOpen ? 'Fechar agendamento manual' : 'Novo agendamento';
+      if (ui.manualOpen) {
+        setErro('manual-erro', '');
+        populateManual();
+        try { $('manual-cliente').focus(); } catch (err) {}
+      }
+    });
+    ['manual-cliente', 'manual-servico', 'manual-barbeiro', 'manual-data'].forEach(function (id) {
+      var el = $(id);
+      if (!el) return;
+      el.addEventListener('change', function () {
+        setErro('manual-erro', '');
+        fillManualHoras();
+      });
+    });
+    $('btn-manual-salvar').addEventListener('click', salvarManual);
+
+    $('btn-criar-servico').addEventListener('click', criarServico);
+    $('btn-add-feriado').addEventListener('click', adicionarFeriado);
+
+    $('btn-reset-demo').addEventListener('click', function () {
+      $('reset-confirm').hidden = false;
+      try { $('btn-confirmar-reset').focus(); } catch (err) {}
+    });
+    $('btn-cancelar-reset').addEventListener('click', function () {
+      $('reset-confirm').hidden = true;
+    });
+    $('btn-confirmar-reset').addEventListener('click', resetDemo);
+
+    document.addEventListener('click', function (ev) {
+      var el = ev.target && ev.target.closest ? ev.target.closest('[data-action]') : null;
+      if (!el) return;
+      var action = el.getAttribute('data-action');
+      var idAttr = el.getAttribute('data-id');
+      var idNum = idAttr ? Number(idAttr) : null;
+      if (action === 'go-agendar' || action === 'home-service' || action === 'pick-service' || action === 'pick-barber' || action === 'pick-date' || action === 'pick-slot' || action === 'open-reschedule' || action === 'ask-cancel' || action === 'confirm-cancel' || action === 'dismiss-cancel' || action === 'close-reschedule' || action === 'new-booking' || action === 'go-meus' || action === 'logout' || action === 'barber-status' || action === 'remove-block' || action === 'save-barber' || action === 'save-service' || action === 'remove-holiday') {
+        ev.preventDefault();
+      }
+      switch (action) {
+        case 'go-agendar':
+          goView('agendar');
+          break;
+        case 'go-meus':
+          goView('meus');
+          break;
+        case 'home-service': {
+          var servico = getServico(idNum);
+          if (!servico) return;
+          resetBooking();
+          ui.booking.servicoId = servico.id;
+          goView('agendar');
+          toast('Serviço escolhido: ' + servico.nome + '.', 'ok');
+          break;
+        }
+        case 'pick-service': {
+          var s = getServico(idNum);
+          if (!s) return;
+          resetBooking();
+          ui.booking.servicoId = s.id;
+          setErro('erro-booking', '');
+          renderBooking();
+          break;
+        }
+        case 'pick-barber': {
+          var bid = idAttr ? Number(idAttr) : null;
+          ui.booking.barbeiroId = bid;
+          ui.booking.hora = null;
+          setErro('erro-booking', '');
+          renderBooking();
+          break;
+        }
+        case 'pick-date': {
+          var data = el.getAttribute('data-date');
+          if (!data || dateStatus(data) !== 'ok') return;
+          ui.booking.data = data;
+          ui.booking.hora = null;
+          setErro('erro-booking', '');
+          renderBooking();
+          break;
+        }
+        case 'pick-slot': {
+          var hora = el.getAttribute('data-hora');
+          if (!hora) return;
+          ui.booking.hora = hora;
+          setErro('erro-booking', '');
+          renderBooking();
+          break;
+        }
+        case 'open-reschedule': {
+          var apptR = DB.agendamentos.find(function (a) { return a.id === idNum; });
+          if (!apptR) return;
+          ui.rescheduleId = apptR.id;
+          ui.rescheduleDate = apptR.data >= todayStr() ? apptR.data : todayStr();
+          ui.pendingCancelId = null;
+          setErro('reagendar-erro', '');
+          renderMeus();
+          try { $('reagendar-painel').scrollIntoView({ block: 'start', behavior: 'smooth' }); } catch (err) {}
+          break;
+        }
+        case 'close-reschedule':
+          ui.rescheduleId = null;
+          ui.rescheduleDate = null;
+          setErro('reagendar-erro', '');
+          renderMeus();
+          break;
+        case 'ask-cancel':
+          ui.pendingCancelId = idNum;
+          ui.rescheduleId = null;
+          renderMeus();
+          break;
+        case 'dismiss-cancel':
+          ui.pendingCancelId = null;
+          renderMeus();
+          break;
+        case 'confirm-cancel':
+          cancelarAgendamento(idNum);
+          break;
+        case 'new-booking':
+          resetBooking();
+          setErro('erro-booking', '');
+          renderBooking();
+          try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (err) {}
+          break;
+        case 'logout':
+          sair();
+          break;
+        case 'barber-status': {
+          var status = el.getAttribute('data-status');
+          if (status === 'concluido' || status === 'faltou') alterarStatusAgendamento(idNum, status);
+          break;
+        }
+        case 'remove-block':
+          removerBloqueio(idNum);
+          break;
+        case 'save-barber':
+          salvarBarbeiro(idNum);
+          break;
+        case 'save-service':
+          salvarServico(idNum);
+          break;
+        case 'remove-holiday':
+          removerFeriado(el.getAttribute('data-data'));
+          break;
+        default:
+          break;
+      }
+    });
+  }
+
+  /* ---------- Boot ---------- */
+  function init() {
+    DB = loadDB();
+    ui = freshUI();
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(DB)); } catch (err) { /* memória apenas */ }
+    configureDateInputs();
+    bindStatic();
+    renderChrome();
+    renderBooking();
+    if (DB.sessao && DB.sessao.papel === 'cliente') renderMeus();
+    else if (DB.sessao && DB.sessao.papel === 'barbeiro') renderBarber();
+    else if (DB.sessao && DB.sessao.papel === 'admin') renderAdmin();
+    goView('inicio', { focus: false, scroll: false });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+</body>
+</html>

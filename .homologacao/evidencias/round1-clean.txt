@@ -1,0 +1,14 @@
+PASS copia limpa sem node_modules
+PASS copia limpa sem dados
+PASS copia limpa sem .git
+PASS index.html presente
+PASS app-autonomo.html presente
+PASS servidor sobe em pasta limpa
+PASS health 200
+PASS home 200 com BARBER PRIME — status 200
+PASS CSS 200
+PASS JS 200
+PASS /api/sessao anonimo 200 com usuario null — {"usuario":null}
+PASS banco criado sozinho em pasta limpa
+PASS /api/me anonimo continua 401 (contrato intacto)
+CLEAN_PACKAGE_OK

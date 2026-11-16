@@ -1,0 +1,15 @@
+OK  POST /api/login -> 200 (esperado 200)
+   cookie: presente
+OK  POST /api/admin/reset-demo -> 200 (esperado 200)
+OK  GET /api/disponibilidade?servicoId=1&data=2027-11-09 -> 200 (esperado 200)
+OK  POST /api/agendamentos -> 201 (esperado 201)
+OK  GET /api/agendamentos?barbeiroId=1&data=2027-11-09 -> 200 (esperado 200)
+   15:30 na lista: true
+OK  GET /api/agendamentos?barbeiroId=1&data=2027-11-09 -> 200 (esperado 200)
+   persistiu apos reinicio: true
+OK  POST /api/agendamentos -> 409 (esperado 409)
+OK  PATCH /api/agendamentos/3/cancelar -> 200 (esperado 200)
+OK  GET /api/agendamentos?barbeiroId=1&data=2027-11-09&escopo=todos -> 200 (esperado 200)
+   status cancelado: true
+OK  GET /api/disponibilidade?servicoId=1&data=2027-11-09 -> 200 (esperado 200)
+   15:30 liberado: true

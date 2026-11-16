@@ -1,0 +1,71 @@
+
+> barber-prime@1.0.0 test
+> node --test "tests/*.test.js"
+
+▶ auth: login, sessao, cadastro e validacoes
+  ✔ login: admin e barbeiros autenticam com o papel correto e cookie HttpOnly/SameSite=Lax (500.7787ms)
+  ✔ login de cliente demo usa o telefone como login e o PIN como senha (334.7774ms)
+  ✔ GET /api/me devolve o usuario autenticado e 401 sem cookie (327.3063ms)
+  ✔ GET /api/sessao e o bootstrap publico: 200 com null para visitante e usuario logado (328.2282ms)
+  ✔ logout invalida a sessao no servidor (cookie antigo deixa de valer) (306.5264ms)
+  ✔ cadastro novo retorna 201 com cookie; mesmo telefone+PIN retorna 200 idempotente; PIN divergente retorna 409 (353.4316ms)
+  ✔ validacoes de cadastro: telefone invalido e PIN curto retornam 422 (289.0838ms)
+  ✔ senha e PIN nunca aparecem nas respostas de login, cadastro e /api/me (369.2661ms)
+  ✔ sem cookie: rotas protegidas respondem 401 nao_autenticado (402.5511ms)
+✔ auth: login, sessao, cadastro e validacoes (3213.99ms)
+▶ disponibilidade: regras do motor de agenda
+  ✔ domingo nao tem horarios (200 sem opcoes/horarios ou 422) (439.2967ms)
+  ✔ intervalo 12:00-13:00 nao oferece nenhuma vaga (15 min e 60 min) (314.4613ms)
+  ✔ nenhum horario fora da jornada (09:00-18:00) e oferecido (291.9972ms)
+  ✔ duracao do servico e respeitada: Sobrancelha 15 min vs Corte+Barba 60 min (301.2636ms)
+  ✔ antecedencia: data passada ou acima de 365 dias retorna 422; hoje respeita agora+30min (291.9254ms)
+  ✔ servico inexistente retorna 404 (271.305ms)
+  ✔ agendamento existente remove o slot; cancelamento devolve o slot (314.6433ms)
+  ✔ bloqueio do barbeiro remove os slots e DELETE devolve (321.9018ms)
+  ✔ feriado remove o dia inteiro (311.5008ms)
+  ✔ "qualquer barbeiro" retorna opcoes dos 4 barbeiros ativos (464.985ms)
+✔ disponibilidade: regras do motor de agenda (3325.4089ms)
+▶ agendamentos: criacao, conflitos, reagendamento, cancelamento e papeis
+  ✔ cria agendamento (201) com todos os campos do contrato (436.8519ms)
+  ✔ conflito no mesmo barbeiro/slot retorna 409 horario_indisponivel (416.146ms)
+  ✔ cliente diferente no mesmo slot retorna 409 (364.3859ms)
+  ✔ dois servicos que se sobrepoem no mesmo barbeiro retornam 409 (379.7444ms)
+  ✔ reagendar libera o horario antigo e ocupa o novo (verificado via API) (301.5624ms)
+  ✔ reagendar para slot ocupado retorna 409 e mantem o horario antigo (342.0282ms)
+  ✔ cancelar libera o slot e nao permite cancelar duas vezes (315.5299ms)
+  ✔ agendamento concluido nao pode ser cancelado (355.853ms)
+  ✔ barbeiro marca concluido/faltou apenas no proprio agendamento (605.3574ms)
+  ✔ admin cria agendamento para cliente; clienteId e obrigatorio para admin (566.2924ms)
+  ✔ cliente nao ve agendamento de outro (filtro alheio 403 e lista apenas propria) (590.0122ms)
+✔ agendamentos: criacao, conflitos, reagendamento, cancelamento e papeis (4676.248ms)
+▶ concorrencia: invariantes de escrita simultanea
+  ✔ concorrência: 100 reservas simultâneas resultam em exatamente 1 confirmada (649.2578ms)
+  ✔ cancelamento concorrente com nova reserva no mesmo slot nao deixa sobreposicao (433.8418ms)
+  ✔ reagendamento simultaneo de dois agendamentos para o mesmo horario: apenas um vence (367.4049ms)
+✔ concorrencia: invariantes de escrita simultanea (1451.953ms)
+▶ persistencia: reinicio do processo e reset demonstrativo
+  ✔ agendamento e sessao (cookie) sobrevivem ao reinicio com o mesmo banco (518.3466ms)
+  ✔ reset-demo (admin) re-semeia com ids deterministicos; cliente/barbeiro recebem 403 (985.206ms)
+✔ persistencia: reinicio do processo e reset demonstrativo (1505.0057ms)
+▶ seguranca: autorizacao, injecao, XSS, rate limit e limites de payload
+  ✔ rotas /api/admin/*: anonimo 401; cliente e barbeiro 403 (502.3766ms)
+  ✔ SQL injection no login nao autentica e nao derruba o servidor (397.3846ms)
+  ✔ SQL injection em parametros nao quebra a API e nao vaza dados (339.224ms)
+  ✔ payload XSS e devolvido como string JSON e nao executa/alterara o banco (402.5781ms)
+  ✔ cliente nao altera agendamento de outro (403 em cancelar, reagendar e status) (325.4177ms)
+  ✔ login nao enumera usuarios: inexistente e senha errada tem a mesma resposta (334.5719ms)
+  ✔ rate limit de login: 11 tentativas retorna 429 (568.7551ms)
+  ✔ metodo errado retorna 405 ou 404 (451.8851ms)
+  ✔ Content-Type invalido em mutacao retorna 415 ou 400 (542.0505ms)
+  ✔ body gigante e rejeitado com 413 ou 400 sem derrubar o servidor (470.4178ms)
+  ✔ nenhuma resposta contem senha_hash ou pin (644.7295ms)
+  ✔ respostas incluem cabecalhos de seguranca (CSP, frames, nosniff) (384.6319ms)
+✔ seguranca: autorizacao, injecao, XSS, rate limit e limites de payload (5366.2399ms)
+ℹ tests 47
+ℹ suites 6
+ℹ pass 47
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5479.9776

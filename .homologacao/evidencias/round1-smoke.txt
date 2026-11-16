@@ -1,0 +1,9 @@
+[smoke] banco: D:\IA\cache\tmp\barberprime-smoke-78564-1794827016333-466ddee0-36b8-488d-89d8-ba8bd3bd794b.db
+[smoke] health: primeira subida respondeu 200 em http://127.0.0.1:53893
+[smoke] agendamento: criado id=3 em 2026-12-21 15:00
+[smoke] listagem: agendamento 3 conferido
+[smoke] encerrar: primeira subida
+[smoke] health: segunda subida respondeu 200 em http://127.0.0.1:65209
+[smoke] persistencia: agendamento 3 sobreviveu ao reinicio
+[smoke] encerrar: segunda subida
+SMOKE OK

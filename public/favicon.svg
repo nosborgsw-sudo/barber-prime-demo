@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Barber Prime">
+  <rect width="64" height="64" rx="15" fill="#0b0b0d"/>
+  <circle cx="32" cy="32" r="25" fill="none" stroke="#c9a24b" stroke-opacity="0.55" stroke-width="1.2"/>
+  <circle cx="22" cy="42" r="6.2" fill="none" stroke="#e3c37c" stroke-width="2.2"/>
+  <circle cx="42" cy="42" r="6.2" fill="none" stroke="#e3c37c" stroke-width="2.2"/>
+  <path d="M26.4 37.6 42.5 15M37.6 37.6 21.5 15" fill="none" stroke="#e3c37c" stroke-width="2.2" stroke-linecap="round"/>
+</svg>
