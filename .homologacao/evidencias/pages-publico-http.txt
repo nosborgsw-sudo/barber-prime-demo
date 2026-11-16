@@ -1,0 +1,32 @@
+Publicação pública — GitHub Pages
+Data (UTC): 2026-11-16T15:52:57Z
+
+URL:         https://nosborgsw-sudo.github.io/barber-prime-demo/
+Repositório: https://github.com/nosborgsw-sudo/barber-prime-demo
+Commit:      658d027
+
+Fonte publicada: index.html, cópia byte a byte de app-autonomo.html
+SHA-256 app-autonomo.html local: c6981a901b1588a74b234abc9183187a5e733194869b147a67c77e5c4394a5a0
+SHA-256 index.html local:         c6981a901b1588a74b234abc9183187a5e733194869b147a67c77e5c4394a5a0
+SHA-256 resposta do Pages:       c6981a901b1588a74b234abc9183187a5e733194869b147a67c77e5c4394a5a0
+
+GET / (curl -L)
+  HTTP/1.1 200 OK
+  Content-Length: 133534
+  Content-Type: text/html; charset=utf-8
+  Server: GitHub.com
+  Strict-Transport-Security: max-age=31556952
+
+GET /app-autonomo.html
+  HTTP 200, 133534 bytes
+
+GitHub Actions
+  CI (push main):                   execução 43901035967 — success, 25 s
+    49/49 testes, 0 falhas; SMOKE OK (reinício + persistência)
+  pages build and deployment:       execução 43901043874 — success, 32 s
+
+Limites desta verificação
+  - O GitHub Pages entrega apenas arquivos estáticos; a API Node/SQLite não roda lá.
+  - A demo usa localStorage: cada visitante tem sua própria base fictícia.
+  - Renderização visual da URL pública não foi executada neste turno (navegador
+    integrado indisponível); a conferência foi HTTP, por hash e pelo CI.

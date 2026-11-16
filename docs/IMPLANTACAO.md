@@ -62,8 +62,9 @@ npm test                 # 47 testes, node:test
 node tests/smoke.js      # processo real + reinício + persistência
 ```
 
-Sugestão de pipeline: `node --version` (>=22.5) → `npm test` → `node tests/smoke.js` →
-publicar artefato de evidências. Não há etapa de build.
+Pipeline real: `.github/workflows/ci.yml` roda `npm test` e `node tests/smoke.js` em
+Node 24 a cada push/PR. Não há etapa de build; `npm run build:pages` apenas copia a demo
+autônoma para `index.html` quando a publicação estática muda.
 
 ## 7. Checklist de segurança antes de expor
 

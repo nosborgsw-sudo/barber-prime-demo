@@ -95,6 +95,19 @@ foi abandonada; duas frentes de frontend escreveram arquivos distintos, sem conf
 Falhas de verificação do próprio harness (seletores `#btn-concluir-1` dependentes de
 ordem) foram corrigidas no script de teste, não no produto.
 
+## Publicação pública (2026-11-16)
+
+- **Demo estática:** https://nosborgsw-sudo.github.io/barber-prime-demo/ — GitHub Pages
+  servindo `index.html` gerado de `app-autonomo.html`; dados em `localStorage`, sem backend.
+- **Repositório:** https://github.com/nosborgsw-sudo/barber-prime-demo
+- **Verificação HTTP real:** `200`, `Content-Length: 133534`, HSTS ativo; SHA-256 do
+  arquivo servido idêntico ao local. `app-autonomo.html` também responde `200`.
+- **CI:** execução 43901035967 — 49/49 testes e `SMOKE OK`; Pages publicou na execução
+  43901043874.
+- **Limite:** o Pages não executa Node/SQLite; a API real continua sem URL pública. A
+  validação visual desta URL em navegador não foi executada neste turno (ferramenta de
+  navegador indisponível); a conferência foi HTTP e por hash.
+
 ## Evidências
 
 `.homologacao/evidencias/`:
@@ -107,9 +120,9 @@ ordem) foram corrigidas no script de teste, não no produto.
 
 ## Pendências e limitações reais
 
-1. **Publicação pública HTTPS não realizada.** Faltam conta de hospedagem, domínio e
-   credenciais de deploy. Não foi criada URL fictícia. Passo a passo em
-   `docs/IMPLANTACAO.md`.
+1. **Backend público ainda não hospedado.** A demonstração estática está publicada no
+   GitHub Pages, mas o servidor Node/SQLite exige um provedor com processo Node e disco
+   persistente. Passo a passo em `docs/IMPLANTACAO.md`.
 2. **OTP por SMS/WhatsApp não integrado.** O acesso usa telefone + PIN. A integração está
    declarada como `simulada` em `fluxos.json` e depende de credencial do provedor.
 3. **PostgreSQL/Prisma não usados.** SQLite foi escolhido para operação sem instalação;

@@ -56,14 +56,15 @@ São contas fictícias de demonstração. O administrador pode redefinir todos o
 ## Testes
 
 ```bash
-npm test                 # 47 testes (node:test) — auth, disponibilidade, agendamento,
-                         # segurança, concorrência (100 reservas) e persistência
+npm test                 # 49 testes (node:test) — auth, disponibilidade, agendamento,
+                         # segurança, concorrência (100 reservas), persistência e Pages
 node tests/smoke.js      # sobe o processo real, reserva, reinicia e prova persistência
 ```
 
-Resultado das duas rodadas finais: **47/47 aprovados**, `SMOKE OK`, 10/10 passos HTTP e
-25/25 verificações em navegador real (Chrome headless, 375 px e 1280 px, incluindo zero
-erros de console na abertura). Evidências em `.homologacao/evidencias/`.
+Resultado das rodadas finais: **49/49 aprovados** e `SMOKE OK` — localmente e no CI do
+GitHub Actions (`.github/workflows/ci.yml`). A rodada anterior também tinha 10/10 passos
+HTTP e 25/25 verificações em navegador real (Chrome headless, 375 px e 1280 px, incluindo
+zero erros de console na abertura). Evidências em `.homologacao/evidencias/`.
 
 ## Estrutura
 
