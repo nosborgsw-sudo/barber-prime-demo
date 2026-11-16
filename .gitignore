@@ -1,0 +1,10 @@
+node_modules/
+.claude/worktrees/
+.env
+.env.*
+!.env.example
+*.log
+data/
+*.db
+*.sqlite
+*.sqlite-*
